@@ -1,8 +1,7 @@
-import { password } from '../config/database';
 import User from '../models/User';
 
 class UserController {
-  // Create
+  // Criar usuário
   async store(req,res) {
     try {
       const novoUser = await User.create(req.body);
@@ -14,7 +13,7 @@ class UserController {
     }
   }
 
-  // Index
+  // Mostrar todos os usuários
   async index(req, res) {
     try {
       const users = await User.findAll();
@@ -24,7 +23,7 @@ class UserController {
     }
   }
 
-  // Show
+  // Mostrar usuário por ID
   async show(req, res) {
     try {
       const user = await User.findByPk(req.params.id);
@@ -34,7 +33,7 @@ class UserController {
     }
   }
 
-  // Update
+  // Atualizar usuário por ID
   async update(req, res) {
     try {
       if(!req.params.id) {
@@ -61,7 +60,7 @@ class UserController {
   }
 
 
-  // Delete
+  // Deletar usuário por ID
   async delete(req, res){
     try {
       if(!req.params.id) {
