@@ -126,25 +126,20 @@ export default class Aluno extends Model {
     this.addHook('beforeSave', (aluno) => {
       if(aluno.faltas && aluno.faltas > 16) {
         aluno.situacao = 'Reprovado por falta';
-        return; // Para aqui, não calcula a média
+        return; 
       }
 
-      // ---- CORREÇÃO 1: Mudar a verificação ----
-      // Usamos '!= null' para checar tanto 'null' quanto 'undefined'.
       const hasAllGrades = aluno.nota1 != null &&
                          aluno.nota2 != null &&
                          aluno.nota3 != null;
-      // ----------------------------------------
 
       if(hasAllGrades) {
-        // ---- CORREÇÃO 2: Converter para Número antes de somar ----
-        // (Necessário pois os valores podem vir como strings do banco/JSON)
+
         const nota1 = parseFloat(aluno.nota1);
         const nota2 = parseFloat(aluno.nota2);
         const nota3 = parseFloat(aluno.nota3);
 
         const media = (nota1 + nota2 + nota3) / 3;
-        // ----------------------------------------------------------
 
         aluno.media_final = media.toFixed(2);
 
