@@ -5,7 +5,19 @@ class AlunoController {
   // Mostra todos os alunos
   async index(req, res) {
     const alunos = await Aluno.findAll({
-      attributes: ['id', 'nome', 'sobrenome', 'email', 'idade', 'peso', 'altura'],
+      attributes: [
+        'id',
+        'nome',
+        'sobrenome',
+        'email',
+        'idade',
+        'nota1',
+        'nota2',
+        'nota3',
+        'media_final',
+        'faltas',
+        'situacao',
+      ],
       order: [['id', 'DESC'], [Foto, 'id', 'DESC']],
       include: {
         model: Foto,
@@ -27,7 +39,19 @@ class AlunoController {
       }
 
       const aluno = await Aluno.findByPk(id, {
-        attributes: ['id', 'nome', 'sobrenome', 'email', 'idade', 'peso', 'altura'],
+        attributes: [
+        'id',
+        'nome',
+        'sobrenome',
+        'email',
+        'idade',
+        'nota1',
+        'nota2',
+        'nota3',
+        'media_final',
+        'faltas',
+        'situacao',
+      ],
         order: [['id', 'DESC'], [Foto, 'id', 'DESC']],
         include: {
           model: Foto,
@@ -45,7 +69,7 @@ class AlunoController {
 
     } catch (e) {
       return res.status(400).json({
-        errors: e.errors.map(err => err.message),
+        errors: e.errors ? e.errors.map(err => err.message) : [e.message],
       })
     }
   }
@@ -56,9 +80,9 @@ class AlunoController {
       const aluno = await Aluno.create(req.body);
       return res.json(aluno);
     } catch(e) {
-      return res.status(400).json({
-        errors: e.errors.map(err => err.message),
-      });
+        return res.status(400).json({
+          errors: e.errors ? e.errors.map(err => err.message) : [e.message],
+        });
     }
   }
 
@@ -85,9 +109,9 @@ class AlunoController {
       return res.json(alunoAtualizado);
 
     } catch(e) {
-      return res.status(400).json({
-        errors: e.errors.map(err => err.message),
-      });
+        return res.status(400).json({
+          errors: e.errors ? e.errors.map(err => err.message) : [e.message],
+        });
     }
   }
 
@@ -114,9 +138,9 @@ class AlunoController {
       return res.json('Aluno apagado com sucesso');
 
     } catch(e) {
-      return res.status(400).json({
-        errors: e.errors.map(err => err.message),
-      });
+        return res.status(400).json({
+          errors: e.errors ? e.errors.map(err => err.message) : [e.message],
+        });
     }
   }
 
