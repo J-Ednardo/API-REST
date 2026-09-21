@@ -25,8 +25,8 @@
     "express": "^4.17.1",
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.2",
-    "mariadb": "^2.5.3",
     "multer": "^2.0.2",
+    "mysql2": "^3.24.4",
     "sequelize": "^6.6.1"
   }
 }
