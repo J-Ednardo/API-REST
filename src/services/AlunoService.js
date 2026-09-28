@@ -100,12 +100,21 @@ class AlunoService {
     const aluno = await Aluno.findByPk(id);
     if (!aluno) throw new AppError('Aluno não existe', 404, 'NAO_ENCONTRADO');
 
+    // Mutaciona o email para liberar o original
+    aluno.email = `deleted_${Date.now()}_${aluno.email}`;
+    await aluno.save({ hooks: false }); // salva o novo email sem validar triggers normais
+
     await aluno.destroy();
     return 'Aluno apagado com sucesso';
   }
 
-  async gerarHistorico(id) {
+  async gerarHistorico(id, user = null) {
     if (!id) throw new AppError('Faltando ID', 400, 'VALIDACAO_ID');
+
+    // RBAC: Se for ALUNO, id deve ser o dele mesmo
+    if (user && user.perfil === 'ALUNO' && String(user.aluno_id) !== String(id)) {
+      throw new AppError('Você só pode ver o seu próprio histórico escolar.', 403, 'ACESSO_NEGADO');
+    }
 
     const aluno = await Aluno.findByPk(id, {
       attributes: ['id', 'nome', 'sobrenome', 'email', 'idade'],

@@ -27,13 +27,7 @@ class AlunoController {
   }
 
   async historico(req, res) {
-    // RBAC: Se for ALUNO, id deve ser o dele mesmo
-    if (req.user.perfil === 'ALUNO' && String(req.user.aluno_id) !== String(req.params.id)) {
-      const AppError = require('../errors/AppError').default;
-      throw new AppError('Você só pode ver o seu próprio histórico escolar.', 403, 'ACESSO_NEGADO');
-    }
-
-    const historico = await AlunoService.gerarHistorico(req.params.id);
+    const historico = await AlunoService.gerarHistorico(req.params.id, req.user);
     return res.json(historico);
   }
 }
