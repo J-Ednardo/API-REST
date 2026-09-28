@@ -1,11 +1,13 @@
 import { Router } from 'express';
 import loginRequired from '../middlewares/loginRequired';
+import validateRequest from '../middlewares/validateRequest';
+import { fotoSchema } from '../schemas/fotoSchema';
 
 import fotoController from '../controllers/FotoController';
 
 const router = new Router();
 
-router.post('/', loginRequired, fotoController.store);
+router.post('/', loginRequired, validateRequest(fotoSchema), fotoController.store);
 
 
 export default router;

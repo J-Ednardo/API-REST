@@ -1,37 +1,28 @@
 import multer from 'multer';
 import multerConfig from '../config/multerConfig.js'
 import Foto from '../models/Foto';
+import AppError from '../errors/AppError';
 
 const upload = multer(multerConfig).single('foto');
 
 class FotoController {
-  store(req, res) {
-    return upload(req, res, async (error) => {
-      if(error) {
-        return res.status(400).json({
-          errors: [error.code]
-        });
-      }
-
-      try {
-        const { originalname, filename } = req.file;
-        const { aluno_id } = req.body;
-
-        if(!aluno_id) {
-          return res.status(400).json({
-            errors: ['Falta o id do aluno'],
-          });
+  async store(req, res) {
+    return new Promise((resolve, reject) => {
+      upload(req, res, async (error) => {
+        if (error) {
+          return reject(new AppError(error.code, 400, 'ERRO_UPLOAD'));
         }
-        
-        const foto = await Foto.create({ originalname, filename, aluno_id });
 
-        return res.json(foto);
-      } catch (e) {
-          return res.status(400).json({
-            errors: ['Aluno não existe'],
-          });
-      }
-
+        try {
+          const { originalname, filename } = req.file;
+          const { aluno_id } = req.body;
+          
+          const foto = await Foto.create({ originalname, filename, aluno_id });
+          resolve(res.json(foto));
+        } catch (e) {
+          reject(new AppError('Aluno não existe', 404, 'NAO_ENCONTRADO'));
+        }
+      });
     });
   }
 }

@@ -1,13 +1,12 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
+import AppError from '../errors/AppError';
 
 export default async (req, res, next) => {
   const { authorization } = req.headers;
 
   if(!authorization) {
-    return res.status(401).json({
-      errors: ['Login necessário'],
-    });
+    throw new AppError('Login necessário', 401, 'NAO_AUTORIZADO');
   }
 
   const [, token] = authorization.split(' ');
@@ -24,17 +23,14 @@ export default async (req, res, next) => {
     });
 
     if(!user) {
-      return res.status(401).json({
-        errors: ['Usuário inválido'],
-      });
+      throw new AppError('Usuário inválido', 401, 'NAO_AUTORIZADO');
     }
+    
     req.user = {}
     req.user.id = id;
     req.user.email = email;
     return next();
   } catch(e) {
-    return res.status(401).json({
-      errors: ['Token inválido'],
-    });
+    throw new AppError('Token inválido ou expirado', 401, 'NAO_AUTORIZADO');
   }
 };

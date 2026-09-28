@@ -1,28 +1,23 @@
 import User from '../models/User';
 import jwt from 'jsonwebtoken';
+import AppError from '../errors/AppError';
 
 class TokenController {
   async store(req, res) {
     const { email = '', password = '' } = req.body;
 
     if(!email || !password) {
-      return res.status(401).json({
-        errors: ['Credenciais inválidas'],
-      });
+      throw new AppError('Credenciais inválidas', 401, 'NAO_AUTORIZADO');
     }
 
     const user = await User.findOne({ where: { email } })
 
     if(!user) {
-      return res.status(401).json({
-        errors: ['Usuário não existe'],
-      });
+      throw new AppError('Credenciais inválidas', 401, 'NAO_AUTORIZADO');
     }
 
     if(!(await user.passwordIsValid(password))) {
-      return res.status(401).json({
-        errors: ['Senha inválida'],
-      });
+      throw new AppError('Credenciais inválidas', 401, 'NAO_AUTORIZADO');
     }
 
     const { id } = user;
