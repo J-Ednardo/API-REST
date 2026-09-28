@@ -2,8 +2,8 @@ import AlunoService from '../services/AlunoService';
 
 class AlunoController {
   async index(req, res) {
-    const alunos = await AlunoService.index();
-    res.json(alunos);
+    const alunosResult = await AlunoService.index(req.query);
+    res.json(alunosResult);
   }
 
   async show(req, res) {
