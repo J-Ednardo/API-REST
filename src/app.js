@@ -1,8 +1,10 @@
 import express from 'express';
+import 'express-async-errors';
 import dotenv from 'dotenv';
 import { resolve } from 'path';
 import cors from 'cors';
 import helmet from 'helmet';
+import delay from 'express-delay';
 
 dotenv.config();
 
@@ -12,10 +14,9 @@ import userRoutes from './routes/UserRoutes.js';
 import tokenRoutes from './routes/TokenRoutes.js';
 import alunoRoutes from './routes/AlunoRoutes.js';
 import fotoRoutes from './routes/FotoRoutes.js';
+import errorHandler from './middlewares/errorHandler';
 
 const whiteList = [
-  // a url
-  // vou usar localmente
   'http://localhost:3000'
 ]
 
@@ -34,6 +35,7 @@ class App {
     this.app = express();
     this.middlewares();
     this.routes();
+    this.exceptionHandler();
   }
 
   middlewares() {
@@ -42,6 +44,7 @@ class App {
       crossOriginResourcePolicy: { policy: "cross-origin" },
       crossOriginEmbedderPolicy: false,
     }));
+    this.app.use(delay(500));
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(express.json());
     this.app.use(express.static(resolve(__dirname, '..', 'uploads')));
@@ -53,6 +56,10 @@ class App {
     this.app.use('/tokens/', tokenRoutes);
     this.app.use('/alunos/', alunoRoutes);
     this.app.use('/fotos/', fotoRoutes);
+  }
+
+  exceptionHandler() {
+    this.app.use(errorHandler);
   }
 }
 

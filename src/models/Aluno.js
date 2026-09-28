@@ -123,33 +123,6 @@ export default class Aluno extends Model {
       sequelize,
     });
 
-    this.addHook('beforeSave', (aluno) => {
-      if(aluno.faltas && aluno.faltas > 16) {
-        aluno.situacao = 'Reprovado por falta';
-        return; 
-      }
-
-      const hasAllGrades = aluno.nota1 != null &&
-                         aluno.nota2 != null &&
-                         aluno.nota3 != null;
-
-      if(hasAllGrades) {
-
-        const nota1 = parseFloat(aluno.nota1);
-        const nota2 = parseFloat(aluno.nota2);
-        const nota3 = parseFloat(aluno.nota3);
-
-        const media = (nota1 + nota2 + nota3) / 3;
-
-        aluno.media_final = media.toFixed(2);
-
-        if (aluno.media_final >= 7) {
-          aluno.situacao = 'Aprovado';
-        } else {
-          aluno.situacao = 'Reprovado por nota';
-        }
-      }
-    });
 
     return this;
   }
