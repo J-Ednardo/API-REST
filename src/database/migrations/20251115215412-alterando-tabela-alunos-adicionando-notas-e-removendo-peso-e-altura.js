@@ -1,12 +1,8 @@
-'use strict';
-
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-
     await queryInterface.removeColumn('alunos', 'peso');
     await queryInterface.removeColumn('alunos', 'altura');
-
 
     await queryInterface.addColumn('alunos', 'nota1', {
       type: Sequelize.FLOAT,
@@ -35,7 +31,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-
     await queryInterface.addColumn('alunos', 'peso', {
       type: Sequelize.FLOAT,
       allowNull: true,
@@ -45,12 +40,11 @@ module.exports = {
       allowNull: true,
     });
 
-    
     await queryInterface.removeColumn('alunos', 'nota1');
     await queryInterface.removeColumn('alunos', 'nota2');
     await queryInterface.removeColumn('alunos', 'nota3');
     await queryInterface.removeColumn('alunos', 'media_final');
     await queryInterface.removeColumn('alunos', 'situacao');
     await queryInterface.removeColumn('alunos', 'faltas');
-  }
+  },
 };

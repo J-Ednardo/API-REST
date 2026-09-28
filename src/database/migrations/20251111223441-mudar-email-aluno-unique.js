@@ -5,9 +5,9 @@ module.exports = {
     {
       type: Sequelize.STRING,
       allowNull: false,
-      unique: true
-    }
+      unique: true,
+    },
   ),
 
-  down: async () => {}
+  down: async () => {},
 };

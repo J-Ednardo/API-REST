@@ -5,13 +5,13 @@ const bodySchema = z.object({
   email: z.string({ required_error: 'Email é obrigatório' }).email('Email inválido'),
   password: z.string({ required_error: 'Senha é obrigatória' }).min(6, 'A senha precisa ter entre 6 e 50 caracteres').max(50),
   perfil: z.enum(['ADMIN', 'PROFESSOR', 'ALUNO']).optional(),
-  aluno_id: z.number().int().optional()
+  aluno_id: z.number().int().optional(),
 });
 
 export const userStoreSchema = z.object({
-  body: bodySchema
+  body: bodySchema,
 });
 
 export const userUpdateSchema = z.object({
-  body: bodySchema.partial()
+  body: bodySchema.partial(),
 });

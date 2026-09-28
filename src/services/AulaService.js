@@ -1,4 +1,4 @@
-﻿import Aula from '../models/Aula';
+import Aula from '../models/Aula';
 import Turma from '../models/Turma';
 import PeriodoLetivo from '../models/PeriodoLetivo';
 import AppError from '../errors/AppError';

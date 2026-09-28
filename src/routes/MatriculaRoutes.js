@@ -1,4 +1,4 @@
-﻿import { Router } from 'express';
+import { Router } from 'express';
 import MatriculaController from '../controllers/MatriculaController';
 import loginRequired from '../middlewares/loginRequired';
 import checkRole from '../middlewares/checkRole';

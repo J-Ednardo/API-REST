@@ -1,4 +1,4 @@
-﻿import FrequenciaService from '../services/FrequenciaService';
+import FrequenciaService from '../services/FrequenciaService';
 
 class FrequenciaController {
   async storeBatch(req, res, next) {
@@ -9,6 +9,7 @@ class FrequenciaController {
       res.status(201).json(data);
     } catch (e) { next(e); }
   }
+
   async update(req, res, next) {
     try {
       const data = await FrequenciaService.update(req.params.id, req.body);
