@@ -14,6 +14,10 @@ import userRoutes from './routes/UserRoutes.js';
 import tokenRoutes from './routes/TokenRoutes.js';
 import alunoRoutes from './routes/AlunoRoutes.js';
 import fotoRoutes from './routes/FotoRoutes.js';
+import periodoLetivoRoutes from './routes/PeriodoLetivoRoutes.js';
+import disciplinaRoutes from './routes/DisciplinaRoutes.js';
+import turmaRoutes from './routes/TurmaRoutes.js';
+import matriculaRoutes from './routes/MatriculaRoutes.js';
 import errorHandler from './middlewares/errorHandler';
 
 const whiteList = [
@@ -56,6 +60,10 @@ class App {
     this.app.use('/tokens/', tokenRoutes);
     this.app.use('/alunos/', alunoRoutes);
     this.app.use('/fotos/', fotoRoutes);
+    this.app.use('/periodos-letivos/', periodoLetivoRoutes);
+    this.app.use('/disciplinas/', disciplinaRoutes);
+    this.app.use('/turmas/', turmaRoutes);
+    this.app.use('/matriculas/', matriculaRoutes);
   }
 
   exceptionHandler() {
