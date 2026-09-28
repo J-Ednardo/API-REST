@@ -4,10 +4,11 @@ import validateRequest from '../middlewares/validateRequest';
 import { fotoSchema } from '../schemas/fotoSchema';
 
 import fotoController from '../controllers/FotoController';
+import checkRole from '../middlewares/checkRole';
 
 const router = new Router();
 
-router.post('/', loginRequired, validateRequest(fotoSchema), fotoController.store);
+router.post('/', loginRequired, checkRole(['ADMIN', 'PROFESSOR']), validateRequest(fotoSchema), fotoController.store);
 
 
 export default router;

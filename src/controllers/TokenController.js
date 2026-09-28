@@ -20,12 +20,12 @@ class TokenController {
       throw new AppError('Credenciais inválidas', 401, 'NAO_AUTORIZADO');
     }
 
-    const { id } = user;
-    const token = jwt.sign({ id, email }, process.env.TOKEN_SECRET, {
+    const { id, perfil, aluno_id } = user;
+    const token = jwt.sign({ id, email, perfil, aluno_id }, process.env.TOKEN_SECRET, {
       expiresIn: process.env.TOKEN_EXPIRATION,
      });
 
-    return res.json({ token, user: { nome: user.nome, id , email} });
+    return res.json({ token, user: { nome: user.nome, id, email, perfil, aluno_id } });
   }
 }
 export default new TokenController();
