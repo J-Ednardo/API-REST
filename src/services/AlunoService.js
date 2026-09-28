@@ -103,6 +103,66 @@ class AlunoService {
     await aluno.destroy();
     return 'Aluno apagado com sucesso';
   }
+
+  async gerarHistorico(id) {
+    if (!id) throw new AppError('Faltando ID', 400, 'VALIDACAO_ID');
+
+    const aluno = await Aluno.findByPk(id, {
+      attributes: ['id', 'nome', 'sobrenome', 'email', 'idade']
+    });
+
+    if (!aluno) throw new AppError('Aluno não existe', 404, 'NAO_ENCONTRADO');
+
+    const MatriculaService = require('./MatriculaService').default;
+    const matriculas = await MatriculaService.index(id);
+
+    let cargaHorariaTotal = 0;
+    let somaMedias = 0;
+    let totalDisciplinasConcluidas = 0;
+
+    const periodosMap = {};
+
+    matriculas.forEach(m => {
+      const periodoNome = m.Turma && m.Turma.PeriodoLetivo ? `${m.Turma.PeriodoLetivo.ano}.${m.Turma.PeriodoLetivo.semestre}` : 'Desconhecido';
+      
+      if (!periodosMap[periodoNome]) {
+        periodosMap[periodoNome] = [];
+      }
+
+      const faltasCalc = (m.faltas_legado || 0) + (m.Frequencias ? m.Frequencias.filter(f => !f.presente).length : 0);
+
+      periodosMap[periodoNome].push({
+        disciplina: m.Turma && m.Turma.Disciplina ? m.Turma.Disciplina.nome : 'N/A',
+        carga_horaria: m.Turma && m.Turma.Disciplina ? m.Turma.Disciplina.carga_horaria : 0,
+        media_final: m.media_final,
+        faltas: faltasCalc,
+        situacao: m.situacao
+      });
+
+      if (m.situacao === 'Aprovado') {
+        const ch = m.Turma && m.Turma.Disciplina ? m.Turma.Disciplina.carga_horaria : 0;
+        cargaHorariaTotal += ch;
+      }
+      
+      if (m.media_final !== null && m.media_final !== undefined) {
+        somaMedias += parseFloat(m.media_final);
+        totalDisciplinasConcluidas++;
+      }
+    });
+
+    const coeficienteRendimento = totalDisciplinasConcluidas > 0 
+      ? (somaMedias / totalDisciplinasConcluidas).toFixed(2) 
+      : '0.00';
+
+    return {
+      aluno,
+      estatisticas: {
+        carga_horaria_integralizada: cargaHorariaTotal,
+        coeficiente_rendimento: coeficienteRendimento
+      },
+      periodos: periodosMap
+    };
+  }
 }
 
 export default new AlunoService();

@@ -141,4 +141,69 @@ describe('Alunos', () => {
     expect(alunoNoBD.email).toContain('deleted_');
     expect(alunoNoBD.email).toContain('apagar@teste.com');
   });
+
+  it('deve gerar o historico do aluno (GET /alunos/:id/historico)', async () => {
+    const postResponse = await request(app)
+      .post('/alunos')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        nome: 'Historico',
+        sobrenome: 'Teste',
+        email: 'historico@teste.com',
+        idade: 15
+      });
+    const alunoId = postResponse.body.id;
+
+    const histResponse = await request(app)
+      .get(`/alunos/${alunoId}/historico`)
+      .set('Authorization', `Bearer ${token}`);
+    
+    expect(histResponse.status).toBe(200);
+    expect(histResponse.body).toHaveProperty('aluno');
+    expect(histResponse.body.aluno.nome).toBe('Historico');
+    expect(histResponse.body).toHaveProperty('estatisticas');
+    expect(histResponse.body.estatisticas).toHaveProperty('carga_horaria_integralizada');
+    expect(histResponse.body.estatisticas).toHaveProperty('coeficiente_rendimento');
+    expect(histResponse.body).toHaveProperty('periodos');
+  });
+
+  it('deve bloquear acesso de aluno ao historico de outro aluno', async () => {
+    // Primeiro cria o aluno valido no banco
+    const dummyAluno = await require('../../src/models/Aluno').default.create({
+      nome: 'Dummy',
+      sobrenome: 'Aluno',
+      email: 'dummy@teste.com',
+      idade: 15
+    });
+
+    const userAluno = await User.create({
+      nome: 'Aluno Teste Hist',
+      email: 'alunohist@teste.com',
+      password: '123456',
+      perfil: 'ALUNO',
+      aluno_id: dummyAluno.id
+    });
+    
+    const tokenAluno = jwt.sign({ id: userAluno.id, email: userAluno.email, perfil: userAluno.perfil, aluno_id: userAluno.aluno_id }, process.env.TOKEN_SECRET || 'segredodeteste123', {
+      expiresIn: process.env.TOKEN_EXPIRATION || '7d'
+    });
+
+    const postResponse = await request(app)
+      .post('/alunos')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        nome: 'Historico 2',
+        sobrenome: 'Teste',
+        email: 'historico2@teste.com',
+        idade: 15
+      });
+    const alunoId = postResponse.body.id; 
+
+    const histResponse = await request(app)
+      .get(`/alunos/${alunoId}/historico`)
+      .set('Authorization', `Bearer ${tokenAluno}`);
+    
+    expect(histResponse.status).toBe(403);
+    expect(histResponse.body.erro.mensagem).toBe('Você só pode ver o seu próprio histórico escolar.');
+  });
 });
