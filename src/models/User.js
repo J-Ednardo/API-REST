@@ -1,4 +1,4 @@
-import Sequelize, { Model } from "sequelize";
+import Sequelize, { Model } from 'sequelize';
 import bcryptjs from 'bcryptjs';
 
 export default class User extends Model {
@@ -10,22 +10,22 @@ export default class User extends Model {
         validate: {
           len: {
             args: [3, 255],
-            msg: 'Campo nome deve ter entre 3 e 255 caracteres'
-          }
-        }
+            msg: 'Campo nome deve ter entre 3 e 255 caracteres',
+          },
+        },
       },
       email: {
         type: Sequelize.STRING,
         defaultValue: '',
         validate: {
           isEmail: {
-            msg: 'Email inválido'
-          }
-        }
+            msg: 'Email inválido',
+          },
+        },
       },
       password_hash: {
         type: Sequelize.STRING,
-        defaultValue: ''
+        defaultValue: '',
       },
       password: {
         type: Sequelize.VIRTUAL,
@@ -33,9 +33,9 @@ export default class User extends Model {
         validate: {
           len: {
             args: [6, 50],
-            msg: 'A senha precisa ter entre 6 e 50 caracteres'
-          }
-        }
+            msg: 'A senha precisa ter entre 6 e 50 caracteres',
+          },
+        },
       },
       perfil: {
         type: Sequelize.STRING,
@@ -43,20 +43,20 @@ export default class User extends Model {
         validate: {
           isIn: {
             args: [['ADMIN', 'PROFESSOR', 'ALUNO']],
-            msg: 'Perfil inválido'
-          }
-        }
+            msg: 'Perfil inválido',
+          },
+        },
       },
       aluno_id: {
         type: Sequelize.INTEGER,
-      }
+      },
     }, {
       sequelize,
     });
 
-    this.addHook('beforeSave', async user => {
-      if(user.password) {
-       user.password_hash = await bcryptjs.hash(user.password, 8);
+    this.addHook('beforeSave', async (user) => {
+      if (user.password) {
+        user.password_hash = await bcryptjs.hash(user.password, 8);
       }
     });
 

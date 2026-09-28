@@ -1,4 +1,4 @@
-﻿import { Router } from 'express';
+import { Router } from 'express';
 import AulaController from '../controllers/AulaController';
 import loginRequired from '../middlewares/loginRequired';
 import checkRole from '../middlewares/checkRole';

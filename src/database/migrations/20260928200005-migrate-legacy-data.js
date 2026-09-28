@@ -1,9 +1,8 @@
-'use strict';
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     // 1. Inserir dados legados
     const now = new Date();
-    
+
     // Periodo Legado
     await queryInterface.bulkInsert('periodos_letivos', [{
       nome: 'Legado',
@@ -14,7 +13,7 @@ module.exports = {
 
     // Busca o id do periodo
     const periodos = await queryInterface.sequelize.query(
-      `SELECT id FROM periodos_letivos WHERE nome = 'Legado' LIMIT 1;`
+      'SELECT id FROM periodos_letivos WHERE nome = \'Legado\' LIMIT 1;',
     );
     const periodoId = periodos[0][0].id;
 
@@ -27,7 +26,7 @@ module.exports = {
     }]);
 
     const disciplinas = await queryInterface.sequelize.query(
-      `SELECT id FROM disciplinas WHERE nome = 'Matérias Gerais' LIMIT 1;`
+      'SELECT id FROM disciplinas WHERE nome = \'Matérias Gerais\' LIMIT 1;',
     );
     const disciplinaId = disciplinas[0][0].id;
 
@@ -41,7 +40,7 @@ module.exports = {
     }]);
 
     const turmas = await queryInterface.sequelize.query(
-      `SELECT id FROM turmas WHERE codigo = 'LEGADO-01' LIMIT 1;`
+      'SELECT id FROM turmas WHERE codigo = \'LEGADO-01\' LIMIT 1;',
     );
     const turmaId = turmas[0][0].id;
 
@@ -83,9 +82,9 @@ module.exports = {
     `);
 
     // 3. Deletar legados
-    await queryInterface.sequelize.query(`DELETE FROM matriculas;`);
-    await queryInterface.sequelize.query(`DELETE FROM turmas WHERE codigo = 'LEGADO-01';`);
-    await queryInterface.sequelize.query(`DELETE FROM disciplinas WHERE nome = 'Matérias Gerais';`);
-    await queryInterface.sequelize.query(`DELETE FROM periodos_letivos WHERE nome = 'Legado';`);
-  }
+    await queryInterface.sequelize.query('DELETE FROM matriculas;');
+    await queryInterface.sequelize.query('DELETE FROM turmas WHERE codigo = \'LEGADO-01\';');
+    await queryInterface.sequelize.query('DELETE FROM disciplinas WHERE nome = \'Matérias Gerais\';');
+    await queryInterface.sequelize.query('DELETE FROM periodos_letivos WHERE nome = \'Legado\';');
+  },
 };

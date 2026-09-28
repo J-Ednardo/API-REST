@@ -24,7 +24,7 @@ class AlunoService {
 
     const matriculaInclude = {
       model: Matricula,
-      attributes: ['id', 'nota1', 'nota2', 'nota3', 'nota_recuperacao', 'media_final', 'faltas_legado', 'situacao', 'turma_id']
+      attributes: ['id', 'nota1', 'nota2', 'nota3', 'nota_recuperacao', 'media_final', 'faltas_legado', 'situacao', 'turma_id'],
     };
 
     if (queries.situacao) {
@@ -41,10 +41,10 @@ class AlunoService {
       include: [
         {
           model: Foto,
-          attributes: ['id', 'filename', 'originalname', 'url']
+          attributes: ['id', 'filename', 'originalname', 'url'],
         },
-        matriculaInclude
-      ]
+        matriculaInclude,
+      ],
     });
 
     return {
@@ -53,8 +53,8 @@ class AlunoService {
         page,
         limit,
         total: count,
-        totalPages: Math.ceil(count / limit)
-      }
+        totalPages: Math.ceil(count / limit),
+      },
     };
   }
 
@@ -66,13 +66,13 @@ class AlunoService {
       include: [
         {
           model: Foto,
-          attributes: ['id', 'filename', 'originalname', 'url']
+          attributes: ['id', 'filename', 'originalname', 'url'],
         },
         {
           model: Matricula,
-          attributes: ['id', 'nota1', 'nota2', 'nota3', 'nota_recuperacao', 'media_final', 'faltas_legado', 'situacao', 'turma_id']
-        }
-      ]
+          attributes: ['id', 'nota1', 'nota2', 'nota3', 'nota_recuperacao', 'media_final', 'faltas_legado', 'situacao', 'turma_id'],
+        },
+      ],
     });
 
     if (!aluno) throw new AppError('Aluno não existe', 404, 'NAO_ENCONTRADO');
@@ -87,7 +87,7 @@ class AlunoService {
 
   async update(id, data) {
     if (!id) throw new AppError('Faltando ID', 400, 'VALIDACAO_ID');
-    
+
     const aluno = await Aluno.findByPk(id);
     if (!aluno) throw new AppError('Aluno não existe', 404, 'NAO_ENCONTRADO');
 
@@ -108,7 +108,7 @@ class AlunoService {
     if (!id) throw new AppError('Faltando ID', 400, 'VALIDACAO_ID');
 
     const aluno = await Aluno.findByPk(id, {
-      attributes: ['id', 'nome', 'sobrenome', 'email', 'idade']
+      attributes: ['id', 'nome', 'sobrenome', 'email', 'idade'],
     });
 
     if (!aluno) throw new AppError('Aluno não existe', 404, 'NAO_ENCONTRADO');
@@ -122,45 +122,45 @@ class AlunoService {
 
     const periodosMap = {};
 
-    matriculas.forEach(m => {
+    matriculas.forEach((m) => {
       const periodoNome = m.Turma && m.Turma.PeriodoLetivo ? `${m.Turma.PeriodoLetivo.ano}.${m.Turma.PeriodoLetivo.semestre}` : 'Desconhecido';
-      
+
       if (!periodosMap[periodoNome]) {
         periodosMap[periodoNome] = [];
       }
 
-      const faltasCalc = (m.faltas_legado || 0) + (m.Frequencias ? m.Frequencias.filter(f => !f.presente).length : 0);
+      const faltasCalc = (m.faltas_legado || 0) + (m.Frequencias ? m.Frequencias.filter((f) => !f.presente).length : 0);
 
       periodosMap[periodoNome].push({
         disciplina: m.Turma && m.Turma.Disciplina ? m.Turma.Disciplina.nome : 'N/A',
         carga_horaria: m.Turma && m.Turma.Disciplina ? m.Turma.Disciplina.carga_horaria : 0,
         media_final: m.media_final,
         faltas: faltasCalc,
-        situacao: m.situacao
+        situacao: m.situacao,
       });
 
       if (m.situacao === 'Aprovado') {
         const ch = m.Turma && m.Turma.Disciplina ? m.Turma.Disciplina.carga_horaria : 0;
         cargaHorariaTotal += ch;
       }
-      
+
       if (m.media_final !== null && m.media_final !== undefined) {
         somaMedias += parseFloat(m.media_final);
         totalDisciplinasConcluidas++;
       }
     });
 
-    const coeficienteRendimento = totalDisciplinasConcluidas > 0 
-      ? (somaMedias / totalDisciplinasConcluidas).toFixed(2) 
+    const coeficienteRendimento = totalDisciplinasConcluidas > 0
+      ? (somaMedias / totalDisciplinasConcluidas).toFixed(2)
       : '0.00';
 
     return {
       aluno,
       estatisticas: {
         carga_horaria_integralizada: cargaHorariaTotal,
-        coeficiente_rendimento: coeficienteRendimento
+        coeficiente_rendimento: coeficienteRendimento,
       },
-      periodos: periodosMap
+      periodos: periodosMap,
     };
   }
 }

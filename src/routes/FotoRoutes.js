@@ -10,5 +10,4 @@ const router = new Router();
 
 router.post('/', loginRequired, checkRole(['ADMIN', 'PROFESSOR']), validateRequest(fotoSchema), fotoController.store);
 
-
 export default router;

@@ -1,4 +1,4 @@
-﻿import Sequelize, { Model } from 'sequelize';
+import Sequelize, { Model } from 'sequelize';
 
 export default class Aula extends Model {
   static init(sequelize) {
@@ -7,7 +7,7 @@ export default class Aula extends Model {
       conteudo: Sequelize.STRING,
     }, {
       sequelize,
-      tableName: 'aulas'
+      tableName: 'aulas',
     });
     return this;
   }

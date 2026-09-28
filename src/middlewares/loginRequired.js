@@ -5,7 +5,7 @@ import AppError from '../errors/AppError';
 export default async (req, res, next) => {
   const { authorization } = req.headers;
 
-  if(!authorization) {
+  if (!authorization) {
     throw new AppError('Login necessário', 401, 'NAO_AUTORIZADO');
   }
 
@@ -18,21 +18,21 @@ export default async (req, res, next) => {
     const user = await User.findOne({
       where: {
         id,
-        email
+        email,
       },
     });
 
-    if(!user) {
+    if (!user) {
       throw new AppError('Usuário inválido', 401, 'NAO_AUTORIZADO');
     }
-    
-    req.user = {}
+
+    req.user = {};
     req.user.id = id;
     req.user.email = email;
     req.user.perfil = user.perfil;
     req.user.aluno_id = user.aluno_id;
     return next();
-  } catch(e) {
+  } catch (e) {
     throw new AppError('Token inválido ou expirado', 401, 'NAO_AUTORIZADO');
   }
 };

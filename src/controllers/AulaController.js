@@ -1,4 +1,4 @@
-﻿import AulaService from '../services/AulaService';
+import AulaService from '../services/AulaService';
 
 class AulaController {
   async index(req, res, next) {
@@ -8,6 +8,7 @@ class AulaController {
       res.json(data);
     } catch (e) { next(e); }
   }
+
   async store(req, res, next) {
     try {
       const { turma_id } = req.params;

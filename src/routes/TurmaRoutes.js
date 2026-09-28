@@ -1,4 +1,4 @@
-﻿import { Router } from 'express';
+import { Router } from 'express';
 import TurmaController from '../controllers/TurmaController';
 import loginRequired from '../middlewares/loginRequired';
 import checkRole from '../middlewares/checkRole';
