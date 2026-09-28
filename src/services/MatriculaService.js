@@ -20,16 +20,21 @@ class MatriculaService {
 
     let situacao = '';
     
-    if (nota_recuperacao !== undefined && nota_recuperacao !== null) {
+    // Calcula situação base
+    if (media >= 7.0) {
+      situacao = 'Aprovado';
+    } else if (media < 5.0) {
+      situacao = 'Reprovado por nota';
+    } else {
+      situacao = 'Em Recuperação';
+    }
+
+    // Se estiver em recuperação e o professor tiver lançado nota do exame
+    if (situacao === 'Em Recuperação' && nota_recuperacao !== undefined && nota_recuperacao !== null) {
       const novaMedia = (media + Number(nota_recuperacao)) / 2;
       mediaFinal = novaMedia.toFixed(2);
       situacao = novaMedia >= 6.0 ? 'Aprovado' : 'Reprovado por nota';
-      return { situacao, media_final: mediaFinal };
     }
-
-    if (media >= 7.0) situacao = 'Aprovado';
-    else if (media < 5.0) situacao = 'Reprovado por nota';
-    else situacao = 'Em Recuperação';
 
     return { situacao, media_final: mediaFinal };
   }

@@ -22,21 +22,28 @@ class AlunoService {
       where.nome = { [Op.like]: `%${nome}%` };
     }
 
+    const matriculaInclude = {
+      model: Matricula,
+      attributes: ['id', 'nota1', 'nota2', 'nota3', 'nota_recuperacao', 'media_final', 'faltas_legado', 'situacao', 'turma_id']
+    };
+
+    if (queries.situacao) {
+      matriculaInclude.where = { situacao: queries.situacao };
+    }
+
     const { count, rows } = await Aluno.findAndCountAll({
       where,
       limit,
       offset,
       attributes: ['id', 'nome', 'sobrenome', 'email', 'idade'],
       order: [['nome', 'ASC'], ['id', 'ASC']],
+      distinct: true, // Necessario por causa do hasMany (Matricula) no findAndCountAll
       include: [
         {
           model: Foto,
           attributes: ['id', 'filename', 'originalname', 'url']
         },
-        {
-          model: Matricula,
-          attributes: ['id', 'nota1', 'nota2', 'nota3', 'nota_recuperacao', 'media_final', 'faltas_legado', 'situacao', 'turma_id']
-        }
+        matriculaInclude
       ]
     });
 

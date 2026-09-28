@@ -28,9 +28,37 @@ describe('MatriculaService', () => {
   });
 
   it('deve reprovar se recuperacao nao alcancar media >= 6', () => {
-    const res = MatriculaService._calcularSituacao(5, 5, 5, 6, 10);
-    expect(res.media_final).toBe("5.50");
+    const res = MatriculaService._calcularSituacao(5, 5, 5, 6.9, 0, 0); // media = 5, recuperacao = 6.9 -> novaMedia = 5.95
+    expect(res.media_final).toBe("5.95");
     expect(res.situacao).toBe('Reprovado por nota');
+  });
+
+  it('deve aprovar se recuperacao alcancar media >= 6', () => {
+    const res = MatriculaService._calcularSituacao(5, 5, 5, 7.0, 0, 0); // media = 5, recuperacao = 7.0 -> novaMedia = 6.00
+    expect(res.media_final).toBe("6.00");
+    expect(res.situacao).toBe('Aprovado');
+  });
+
+  it('deve ignorar nota de recuperacao se aluno ja estiver aprovado direto', () => {
+    const res = MatriculaService._calcularSituacao(7, 7, 7, 2, 0, 0); // media = 7.0 (aprovado)
+    expect(res.media_final).toBe("7.00");
+    expect(res.situacao).toBe('Aprovado');
+  });
+
+  it('deve ignorar nota de recuperacao se aluno reprovou direto com menos de 5', () => {
+    const res = MatriculaService._calcularSituacao(4, 4, 4, 10, 0, 0); // media = 4.0 (reprovado direto)
+    expect(res.media_final).toBe("4.00");
+    expect(res.situacao).toBe('Reprovado por nota');
+  });
+
+  it('deve ir para recuperacao se media exata for 5.0 ou 6.99 e ficar em recuperacao se nao tiver nota de exame', () => {
+    const res = MatriculaService._calcularSituacao(5, 5, 5, null, 0, 0); // media = 5.0
+    expect(res.media_final).toBe("5.00");
+    expect(res.situacao).toBe('Em Recuperação');
+
+    const res2 = MatriculaService._calcularSituacao(7, 7, 6.9, null, 0, 0); // media = 6.96
+    expect(res2.media_final).toBe("6.97");
+    expect(res2.situacao).toBe('Em Recuperação');
   });
 
   it('deve reprovar por falta independentemente de notas altas', () => {
