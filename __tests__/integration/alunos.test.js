@@ -13,21 +13,29 @@ describe('Alunos', () => {
     const user = await User.create({
       nome: 'Teste',
       email: 'admin@teste.com',
-      password: '123456'
+      password: '123456',
+      perfil: 'ADMIN'
     });
     
-    token = jwt.sign({ id: user.id, email: user.email }, process.env.TOKEN_SECRET || 'segredodeteste123', {
+    token = jwt.sign({ id: user.id, email: user.email, perfil: user.perfil, aluno_id: user.aluno_id }, process.env.TOKEN_SECRET || 'segredodeteste123', {
       expiresIn: process.env.TOKEN_EXPIRATION || '7d'
     });
   });
 
-  it('deve listar todos os alunos (GET /alunos)', async () => {
+  it('deve bloquear listar todos os alunos sem token (GET /alunos)', async () => {
     const response = await request(app).get('/alunos');
+    expect(response.status).toBe(401);
+  });
+
+  it('deve listar todos os alunos se for admin (GET /alunos)', async () => {
+    const response = await request(app)
+      .get('/alunos')
+      .set('Authorization', `Bearer ${token}`);
     expect(response.status).toBe(200);
     expect(Array.isArray(response.body)).toBe(true);
   });
 
-  it('deve cadastrar aluno com token e aplicar regras (POST /alunos)', async () => {
+  it('deve cadastrar aluno com token de ADMIN (POST /alunos)', async () => {
     const response = await request(app)
       .post('/alunos')
       .set('Authorization', `Bearer ${token}`)
@@ -60,5 +68,29 @@ describe('Alunos', () => {
       });
 
     expect(response.status).toBe(401);
+  });
+
+  it('deve bloquear criacao de aluno com token de ALUNO', async () => {
+    const userAluno = await User.create({
+      nome: 'Aluno Teste',
+      email: 'aluno@teste.com',
+      password: '123456',
+      perfil: 'ALUNO'
+    });
+    
+    const tokenAluno = jwt.sign({ id: userAluno.id, email: userAluno.email, perfil: userAluno.perfil }, process.env.TOKEN_SECRET || 'segredodeteste123', {
+      expiresIn: process.env.TOKEN_EXPIRATION || '7d'
+    });
+
+    const response = await request(app)
+      .post('/alunos')
+      .set('Authorization', `Bearer ${tokenAluno}`)
+      .send({
+        nome: 'João',
+        sobrenome: 'Silva',
+        email: 'joao3@silva.com'
+      });
+
+    expect(response.status).toBe(403);
   });
 });

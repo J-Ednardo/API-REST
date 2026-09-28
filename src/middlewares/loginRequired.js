@@ -29,6 +29,8 @@ export default async (req, res, next) => {
     req.user = {}
     req.user.id = id;
     req.user.email = email;
+    req.user.perfil = user.perfil;
+    req.user.aluno_id = user.aluno_id;
     return next();
   } catch(e) {
     throw new AppError('Token inválido ou expirado', 401, 'NAO_AUTORIZADO');

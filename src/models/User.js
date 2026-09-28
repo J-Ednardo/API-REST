@@ -36,6 +36,19 @@ export default class User extends Model {
             msg: 'A senha precisa ter entre 6 e 50 caracteres'
           }
         }
+      },
+      perfil: {
+        type: Sequelize.STRING,
+        defaultValue: 'ALUNO',
+        validate: {
+          isIn: {
+            args: [['ADMIN', 'PROFESSOR', 'ALUNO']],
+            msg: 'Perfil inválido'
+          }
+        }
+      },
+      aluno_id: {
+        type: Sequelize.INTEGER,
       }
     }, {
       sequelize,
@@ -52,5 +65,9 @@ export default class User extends Model {
 
   passwordIsValid(password) {
     return bcryptjs.compare(password, this.password_hash);
+  }
+
+  static associate(models) {
+    this.belongsTo(models.Aluno, { foreignKey: 'aluno_id' });
   }
 }

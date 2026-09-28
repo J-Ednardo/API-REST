@@ -4,10 +4,11 @@ import loginRequired from '../middlewares/loginRequired';
 
 import validateRequest from '../middlewares/validateRequest';
 import { userStoreSchema, userUpdateSchema } from '../schemas/userSchema';
+import { registerLimiter } from '../middlewares/rateLimiter';
 
 const router = new Router();
 
-router.post('/', validateRequest(userStoreSchema), userController.store);
+router.post('/', registerLimiter, validateRequest(userStoreSchema), userController.store);
 router.put('/', loginRequired, validateRequest(userUpdateSchema), userController.update);
 router.delete('/', loginRequired, userController.delete);
 
