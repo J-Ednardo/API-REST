@@ -18,5 +18,6 @@ export default class Turma extends Model {
     this.belongsTo(models.Disciplina, { foreignKey: 'disciplina_id' });
     this.belongsTo(models.User, { foreignKey: 'professor_id', as: 'Professor' });
     this.hasMany(models.Matricula, { foreignKey: 'turma_id' });
+    this.hasMany(models.Aula, { foreignKey: 'turma_id' });
   }
 }

@@ -18,6 +18,8 @@ import periodoLetivoRoutes from './routes/PeriodoLetivoRoutes.js';
 import disciplinaRoutes from './routes/DisciplinaRoutes.js';
 import turmaRoutes from './routes/TurmaRoutes.js';
 import matriculaRoutes from './routes/MatriculaRoutes.js';
+import aulaRoutes from './routes/AulaRoutes.js';
+import frequenciaRoutes from './routes/FrequenciaRoutes.js';
 import errorHandler from './middlewares/errorHandler';
 
 const whiteList = [
@@ -64,6 +66,11 @@ class App {
     this.app.use('/disciplinas/', disciplinaRoutes);
     this.app.use('/turmas/', turmaRoutes);
     this.app.use('/matriculas/', matriculaRoutes);
+    
+    // Novas rotas (Diário)
+    this.app.use('/turmas/:turma_id/aulas', aulaRoutes);
+    this.app.use('/aulas/:aula_id/frequencias', frequenciaRoutes);
+    this.app.use('/frequencias', frequenciaRoutes); // para PUT /frequencias/:id
   }
 
   exceptionHandler() {
