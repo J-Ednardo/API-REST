@@ -1,0 +1,557 @@
+openapi: 3.0.0
+info:
+  title: API Gestão de Alunos (Ecossistema Escola)
+  description: Documentação interativa da API REST para gestão escolar.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3001
+    description: Servidor de Desenvolvimento
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ErroPadrao:
+      type: object
+      properties:
+        erro:
+          type: object
+          properties:
+            codigo:
+              type: string
+            mensagem:
+              type: string
+            detalhes:
+              type: array
+              items:
+                type: object
+                properties:
+                  campo:
+                    type: string
+                  mensagem:
+                    type: string
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        nome:
+          type: string
+        email:
+          type: string
+        perfil:
+          type: string
+          enum: [ADMIN, PROFESSOR, ALUNO]
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+    TokenResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+    Aluno:
+      type: object
+      properties:
+        id:
+          type: integer
+        nome:
+          type: string
+        sobrenome:
+          type: string
+        email:
+          type: string
+        idade:
+          type: integer
+    Matricula:
+      type: object
+      properties:
+        id:
+          type: integer
+        aluno_id:
+          type: integer
+        turma_id:
+          type: integer
+        nota1:
+          type: number
+        nota2:
+          type: number
+        nota3:
+          type: number
+        nota_recuperacao:
+          type: number
+        media_final:
+          type: number
+        situacao:
+          type: string
+        faltas_legado:
+          type: integer
+    Turma:
+      type: object
+      properties:
+        id:
+          type: integer
+        codigo:
+          type: string
+        disciplina_id:
+          type: integer
+        periodo_id:
+          type: integer
+        professor_id:
+          type: integer
+    Aula:
+      type: object
+      properties:
+        id:
+          type: integer
+        turma_id:
+          type: integer
+        data:
+          type: string
+          format: date
+        conteudo:
+          type: string
+    Frequencia:
+      type: object
+      properties:
+        id:
+          type: integer
+        aula_id:
+          type: integer
+        matricula_id:
+          type: integer
+        presente:
+          type: boolean
+security:
+  - bearerAuth: []
+paths:
+  /tokens:
+    post:
+      summary: Autenticação de usuário
+      security: []
+      tags:
+        - Autenticação
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Token gerado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          description: Credenciais inválidas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroPadrao'
+  /users:
+    post:
+      summary: Criação de usuário
+      security: []
+      tags:
+        - Usuários
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nome, email, password]
+              properties:
+                nome: { type: string }
+                email: { type: string }
+                password: { type: string }
+                perfil: { type: string }
+                aluno_id: { type: integer }
+      responses:
+        '200':
+          description: Usuário criado
+    put:
+      summary: Atualiza usuário logado
+      tags:
+        - Usuários
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome: { type: string }
+                email: { type: string }
+      responses:
+        '200':
+          description: Usuário atualizado
+    delete:
+      summary: Deleta o próprio usuário logado
+      tags:
+        - Usuários
+      responses:
+        '200':
+          description: Usuário deletado
+  /alunos:
+    get:
+      summary: Lista todos os alunos paginados
+      tags:
+        - Alunos
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+        - in: query
+          name: nome
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de alunos
+    post:
+      summary: Cria um novo aluno
+      tags:
+        - Alunos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome: { type: string }
+                sobrenome: { type: string }
+                email: { type: string }
+                idade: { type: integer }
+      responses:
+        '200':
+          description: Aluno criado
+  /alunos/{id}:
+    get:
+      summary: Detalhes de um aluno
+      tags:
+        - Alunos
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detalhe do aluno e suas matrículas
+    put:
+      summary: Atualiza um aluno
+      tags:
+        - Alunos
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Aluno'
+      responses:
+        '200':
+          description: Aluno atualizado
+    delete:
+      summary: Realiza soft delete do aluno
+      tags:
+        - Alunos
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Aluno apagado
+  /alunos/{id}/historico:
+    get:
+      summary: Gera histórico escolar analítico
+      tags:
+        - Alunos
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Histórico escolar
+        '403':
+          description: Acesso negado
+  /matriculas:
+    post:
+      summary: Cria uma matrícula
+      tags:
+        - Matrículas
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [aluno_id, turma_id]
+              properties:
+                aluno_id: { type: integer }
+                turma_id: { type: integer }
+      responses:
+        '200':
+          description: Matrícula criada
+  /matriculas/{id}:
+    put:
+      summary: Atualiza notas da matrícula
+      tags:
+        - Matrículas
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nota1: { type: number }
+                nota2: { type: number }
+                nota3: { type: number }
+                nota_recuperacao: { type: number }
+                faltas_legado: { type: integer }
+      responses:
+        '200':
+          description: Notas atualizadas e situação recalculada
+        '403':
+          description: Período letivo fechado (não pode editar)
+  /periodos-letivos:
+    get:
+      summary: Lista todos os períodos letivos
+      tags:
+        - Acadêmico
+      responses:
+        '200':
+          description: Sucesso
+    post:
+      summary: Cria período letivo
+      tags:
+        - Acadêmico
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ano: { type: integer }
+                semestre: { type: integer }
+                status: { type: string, enum: [ABERTO, FECHADO] }
+      responses:
+        '200':
+          description: Sucesso
+  /periodos-letivos/{id}:
+    put:
+      summary: Atualiza status do período letivo
+      tags:
+        - Acadêmico
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: { type: string, enum: [ABERTO, FECHADO] }
+      responses:
+        '200':
+          description: Status atualizado
+  /disciplinas:
+    get:
+      summary: Lista disciplinas
+      tags:
+        - Acadêmico
+      responses:
+        '200':
+          description: Sucesso
+    post:
+      summary: Cria disciplina
+      tags:
+        - Acadêmico
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome: { type: string }
+                carga_horaria: { type: integer }
+      responses:
+        '200':
+          description: Sucesso
+  /turmas:
+    get:
+      summary: Lista turmas
+      tags:
+        - Acadêmico
+      responses:
+        '200':
+          description: Sucesso
+    post:
+      summary: Cria turma
+      tags:
+        - Acadêmico
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                codigo: { type: string }
+                periodo_id: { type: integer }
+                disciplina_id: { type: integer }
+                professor_id: { type: integer }
+      responses:
+        '200':
+          description: Sucesso
+  /turmas/{turma_id}/aulas:
+    get:
+      summary: Lista aulas de uma turma
+      tags:
+        - Aulas e Frequência
+      parameters:
+        - in: path
+          name: turma_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Lista de aulas
+    post:
+      summary: Cria uma nova aula
+      tags:
+        - Aulas e Frequência
+      parameters:
+        - in: path
+          name: turma_id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data: { type: string, format: date }
+                conteudo: { type: string }
+      responses:
+        '200':
+          description: Aula criada
+  /aulas/{aula_id}/frequencias:
+    post:
+      summary: Lança frequências em lote para uma aula
+      tags:
+        - Aulas e Frequência
+      parameters:
+        - in: path
+          name: aula_id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  matricula_id: { type: integer }
+                  presente: { type: boolean }
+      responses:
+        '201':
+          description: Frequências cadastradas com sucesso
+  /frequencias/{id}:
+    put:
+      summary: Atualiza uma única frequência
+      tags:
+        - Aulas e Frequência
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                presente: { type: boolean }
+      responses:
+        '200':
+          description: Atualizado
+  /fotos:
+    post:
+      summary: Faz o upload de foto do aluno
+      tags:
+        - Arquivos
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                aluno_id: { type: string }
+                foto:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Foto salva

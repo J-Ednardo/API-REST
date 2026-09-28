@@ -22,6 +22,8 @@ import aulaRoutes from './routes/AulaRoutes.js';
 import frequenciaRoutes from './routes/FrequenciaRoutes.js';
 import errorHandler from './middlewares/errorHandler';
 
+import { swaggerUi, swaggerDocument } from './config/swagger.js';
+
 const whiteList = [
   'http://localhost:3000'
 ]
@@ -57,6 +59,9 @@ class App {
   }
 
   routes() {
+    // Documentação Swagger
+    this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
     this.app.use('/', homeRoutes);
     this.app.use('/users/', userRoutes);
     this.app.use('/tokens/', tokenRoutes);
