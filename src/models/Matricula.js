@@ -19,5 +19,6 @@ export default class Matricula extends Model {
   static associate(models) {
     this.belongsTo(models.Aluno, { foreignKey: 'aluno_id' });
     this.belongsTo(models.Turma, { foreignKey: 'turma_id' });
+    this.hasMany(models.Frequencia, { foreignKey: 'matricula_id' });
   }
 }

@@ -7,8 +7,10 @@ import PeriodoLetivo from "../models/PeriodoLetivo";
 import Disciplina from "../models/Disciplina";
 import Turma from "../models/Turma";
 import Matricula from "../models/Matricula";
+import Aula from "../models/Aula";
+import Frequencia from "../models/Frequencia";
 
-const models = [Aluno, User, Foto, PeriodoLetivo, Disciplina, Turma, Matricula];
+const models = [Aluno, User, Foto, PeriodoLetivo, Disciplina, Turma, Matricula, Aula, Frequencia];
 
 const conection = new Sequelize(databaseConfig);
 
