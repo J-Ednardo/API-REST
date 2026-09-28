@@ -1,6 +1,6 @@
-﻿import User from '../models/User.js';
-import AppError from '../errors/AppError.js';
 import bcryptjs from 'bcryptjs';
+import User from '../models/User.js';
+import AppError from '../errors/AppError.js';
 
 class UserService {
   async index() {
@@ -34,7 +34,7 @@ class UserService {
   async delete(id) {
     const user = await User.findByPk(id);
     if (!user) throw new AppError('Usuário não existe', 404, 'NAO_ENCONTRADO');
-    
+
     await user.destroy();
     return true;
   }
