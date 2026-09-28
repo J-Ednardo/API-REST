@@ -44,7 +44,13 @@ class MatriculaService {
     return await Matricula.findAll({ 
       where,
       include: [
-        { model: Turma, include: [PeriodoLetivo] },
+        { 
+          model: Turma, 
+          include: [
+            PeriodoLetivo,
+            { model: require('../models/Disciplina').default }
+          ] 
+        },
         { model: Frequencia }
       ]
     });
@@ -57,7 +63,13 @@ class MatriculaService {
     return await Matricula.findOne({
       where,
       include: [
-        { model: Turma, include: [PeriodoLetivo] },
+        { 
+          model: Turma, 
+          include: [
+            PeriodoLetivo,
+            { model: require('../models/Disciplina').default }
+          ] 
+        },
         { model: Frequencia }
       ]
     });
