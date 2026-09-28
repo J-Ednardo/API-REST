@@ -1,4 +1,4 @@
-﻿import MatriculaService from '../services/MatriculaService';
+import MatriculaService from '../services/MatriculaService';
 import AppError from '../errors/AppError';
 
 class MatriculaController {
@@ -9,6 +9,7 @@ class MatriculaController {
       res.json(data);
     } catch (e) { next(e); }
   }
+
   async show(req, res, next) {
     try {
       const aluno_id = req.user.perfil === 'ALUNO' ? req.user.aluno_id : null;
@@ -17,18 +18,21 @@ class MatriculaController {
       res.json(data);
     } catch (e) { next(e); }
   }
+
   async store(req, res, next) {
     try {
       const data = await MatriculaService.store(req.body);
       res.status(201).json(data);
     } catch (e) { next(e); }
   }
+
   async update(req, res, next) {
     try {
       const data = await MatriculaService.update(req.params.id, req.body);
       res.json(data);
     } catch (e) { next(e); }
   }
+
   async delete(req, res, next) {
     try {
       await MatriculaService.delete(req.params.id);

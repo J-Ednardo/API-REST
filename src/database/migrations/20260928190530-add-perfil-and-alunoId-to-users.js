@@ -1,5 +1,3 @@
-'use strict';
-
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.addColumn('users', 'perfil', {
@@ -23,5 +21,5 @@ module.exports = {
   down: async (queryInterface, Sequelize) => {
     await queryInterface.removeColumn('users', 'aluno_id');
     await queryInterface.removeColumn('users', 'perfil');
-  }
+  },
 };

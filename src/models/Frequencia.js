@@ -1,4 +1,4 @@
-﻿import Sequelize, { Model } from 'sequelize';
+import Sequelize, { Model } from 'sequelize';
 
 export default class Frequencia extends Model {
   static init(sequelize) {
@@ -6,7 +6,7 @@ export default class Frequencia extends Model {
       presente: Sequelize.BOOLEAN,
     }, {
       sequelize,
-      tableName: 'frequencias'
+      tableName: 'frequencias',
     });
     return this;
   }

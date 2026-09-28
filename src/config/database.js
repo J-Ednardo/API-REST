@@ -10,17 +10,17 @@ const baseConfig = {
     timestamps: true,
     underscored: true,
     undescoredAll: true,
-    'createdAt': 'created_at',
-    'updateAt': 'update_at'
+    createdAt: 'created_at',
+    updateAt: 'update_at',
   },
-  logging: false
+  logging: false,
 };
 
 if (process.env.NODE_ENV === 'test') {
   module.exports = {
     ...baseConfig,
     dialect: 'sqlite',
-    storage: ':memory:'
+    storage: ':memory:',
   };
 } else {
   module.exports = {
@@ -28,8 +28,8 @@ if (process.env.NODE_ENV === 'test') {
     dialect: 'mysql',
     dialectOptions: {
       timezone: 'America/Sao_Paulo',
-      allowPublicKeyRetrieval: true
+      allowPublicKeyRetrieval: true,
     },
-    timezone: 'America/Sao_Paulo'
+    timezone: 'America/Sao_Paulo',
   };
 }

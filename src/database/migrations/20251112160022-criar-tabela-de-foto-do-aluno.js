@@ -19,7 +19,7 @@ module.exports = {
       allowNull: true,
       references: {
         model: 'alunos',
-        key: 'id'
+        key: 'id',
       },
       onDelete: 'SET NULL',
       onUpdate: 'CASCADE',
@@ -31,7 +31,7 @@ module.exports = {
     updated_at: {
       type: Sequelize.DATE,
       allowNull: false,
-    }
+    },
   }),
 
   down: (queryInterface) => queryInterface.dropTable('fotos'),

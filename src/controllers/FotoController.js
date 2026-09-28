@@ -1,5 +1,5 @@
 import multer from 'multer';
-import multerConfig from '../config/multerConfig.js'
+import multerConfig from '../config/multerConfig.js';
 import Foto from '../models/Foto';
 import AppError from '../errors/AppError';
 
@@ -16,7 +16,7 @@ class FotoController {
         try {
           const { originalname, filename } = req.file;
           const { aluno_id } = req.body;
-          
+
           const foto = await Foto.create({ originalname, filename, aluno_id });
           resolve(res.json(foto));
         } catch (e) {

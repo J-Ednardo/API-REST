@@ -6,8 +6,6 @@ import cors from 'cors';
 import helmet from 'helmet';
 import delay from 'express-delay';
 
-dotenv.config();
-
 import './database/index.js';
 import homeRoutes from './routes/homeRoutes.js';
 import userRoutes from './routes/UserRoutes.js';
@@ -24,19 +22,21 @@ import errorHandler from './middlewares/errorHandler';
 
 import { swaggerUi, swaggerDocument } from './config/swagger.js';
 
+dotenv.config();
+
 const whiteList = [
-  'http://localhost:3000'
-]
+  'http://localhost:3000',
+];
 
 const corsOptions = {
-  origin: function (origin, callback) {
-    if(whiteList.indexOf(origin) !== -1 || !origin) {
+  origin(origin, callback) {
+    if (whiteList.indexOf(origin) !== -1 || !origin) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
-  }
-}
+  },
+};
 
 class App {
   constructor() {
@@ -49,7 +49,7 @@ class App {
   middlewares() {
     this.app.use(cors(corsOptions));
     this.app.use(helmet({
-      crossOriginResourcePolicy: { policy: "cross-origin" },
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
       crossOriginEmbedderPolicy: false,
     }));
     this.app.use(delay(500));
@@ -71,7 +71,7 @@ class App {
     this.app.use('/disciplinas/', disciplinaRoutes);
     this.app.use('/turmas/', turmaRoutes);
     this.app.use('/matriculas/', matriculaRoutes);
-    
+
     // Novas rotas (Diário)
     this.app.use('/turmas/:turma_id/aulas', aulaRoutes);
     this.app.use('/aulas/:aula_id/frequencias', frequenciaRoutes);

@@ -32,7 +32,7 @@ class AlunoController {
       const AppError = require('../errors/AppError').default;
       throw new AppError('Você só pode ver o seu próprio histórico escolar.', 403, 'ACESSO_NEGADO');
     }
-    
+
     const historico = await AlunoService.gerarHistorico(req.params.id);
     return res.json(historico);
   }
