@@ -27,12 +27,35 @@ describe('Alunos', () => {
     expect(response.status).toBe(401);
   });
 
-  it('deve listar todos os alunos se for admin (GET /alunos)', async () => {
+  it('deve listar todos os alunos se for admin (GET /alunos) com nova estrutura de paginacao', async () => {
     const response = await request(app)
       .get('/alunos')
       .set('Authorization', `Bearer ${token}`);
     expect(response.status).toBe(200);
-    expect(Array.isArray(response.body)).toBe(true);
+    expect(Array.isArray(response.body.data)).toBe(true);
+    expect(response.body.meta).toHaveProperty('page');
+    expect(response.body.meta).toHaveProperty('limit');
+    expect(response.body.meta).toHaveProperty('total');
+    expect(response.body.meta).toHaveProperty('totalPages');
+  });
+
+  it('deve testar os filtros e a paginacao (GET /alunos?nome=Teste&situacao=Aprovado&limit=1)', async () => {
+    // Cria alguns alunos para testar
+    await request(app).post('/alunos').set('Authorization', `Bearer ${token}`).send({
+      nome: 'Aluno Filtro Um', sobrenome: 'Silva', email: 'f1@s.com', idade: 15, nota1: 10, nota2: 10, nota3: 10, faltas: 0
+    });
+    await request(app).post('/alunos').set('Authorization', `Bearer ${token}`).send({
+      nome: 'Aluno Filtro Dois', sobrenome: 'Silva', email: 'f2@s.com', idade: 15, nota1: 10, nota2: 10, nota3: 10, faltas: 0
+    });
+
+    const response = await request(app)
+      .get('/alunos?nome=Filtro&limit=1&page=2')
+      .set('Authorization', `Bearer ${token}`);
+    expect(response.status).toBe(200);
+    expect(response.body.data.length).toBe(1);
+    expect(response.body.meta.limit).toBe(1);
+    expect(response.body.meta.page).toBe(2);
+    expect(response.body.meta.total).toBe(2); // tem os dois
   });
 
   it('deve cadastrar aluno com token de ADMIN (POST /alunos)', async () => {
@@ -92,5 +115,37 @@ describe('Alunos', () => {
       });
 
     expect(response.status).toBe(403);
+  });
+
+  it('deve executar o soft delete corretamente (DELETE /alunos/:id)', async () => {
+    const postResponse = await request(app)
+      .post('/alunos')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        nome: 'Para Apagar',
+        sobrenome: 'Apagado',
+        email: 'apagar@teste.com',
+        idade: 15
+      });
+    const alunoId = postResponse.body.id;
+
+    // Soft delete
+    const deleteResponse = await request(app)
+      .delete(`/alunos/${alunoId}`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(deleteResponse.status).toBe(200);
+
+    // Nao deve ser listado
+    const getResponse = await request(app)
+      .get(`/alunos/${alunoId}`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(getResponse.status).toBe(404);
+
+    // Verifica no BD que ainda existe (soft deleted) e email alterado
+    const alunoNoBD = await require('../../src/models/Aluno').default.findByPk(alunoId, { paranoid: false });
+    expect(alunoNoBD).toBeTruthy();
+    expect(alunoNoBD.deleted_at).toBeTruthy();
+    expect(alunoNoBD.email).toContain('deleted_');
+    expect(alunoNoBD.email).toContain('apagar@teste.com');
   });
 });

@@ -33,18 +33,52 @@ class AlunoService {
     return { ...alunoData, situacao, media_final };
   }
 
-  async index() {
-    return await Aluno.findAll({
+  async index(queries = {}) {
+    let { page = 1, limit = 10, nome, situacao } = queries;
+
+    page = parseInt(page, 10);
+    limit = parseInt(limit, 10);
+
+    if (isNaN(page) || page < 1) page = 1;
+    if (isNaN(limit) || limit < 1) limit = 10;
+    if (limit > 50) limit = 50; // max limit
+
+    const offset = (page - 1) * limit;
+    const where = {};
+
+    if (nome) {
+      const { Op } = require('sequelize');
+      where.nome = { [Op.like]: `%${nome}%` };
+    }
+
+    if (situacao) {
+      where.situacao = situacao;
+    }
+
+    const { count, rows } = await Aluno.findAndCountAll({
+      where,
+      limit,
+      offset,
       attributes: [
         'id', 'nome', 'sobrenome', 'email', 'idade',
         'nota1', 'nota2', 'nota3', 'media_final', 'faltas', 'situacao'
       ],
-      order: [['id', 'DESC'], [Foto, 'id', 'DESC']],
+      order: [['nome', 'ASC'], ['id', 'ASC']],
       include: {
         model: Foto,
         attributes: ['id', 'filename', 'originalname', 'url']
       }
     });
+
+    return {
+      data: rows,
+      meta: {
+        page,
+        limit,
+        total: count,
+        totalPages: Math.ceil(count / limit)
+      }
+    };
   }
 
   async show(id) {
