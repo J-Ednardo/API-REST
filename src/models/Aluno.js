@@ -53,12 +53,6 @@ export default class Aluno extends Model {
       },
     );
 
-    this.addHook('beforeDestroy', async (aluno) => {
-      // Mutaciona o email para liberar o original
-      aluno.email = `deleted_${Date.now()}_${aluno.email}`;
-      await aluno.save({ hooks: false }); // salva o novo email sem validar triggers normais
-    });
-
     return this;
   }
 

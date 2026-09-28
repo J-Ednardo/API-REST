@@ -1,7 +1,7 @@
 import request from 'supertest';
 import app from '../../src/app';
 import truncate from '../utils/truncate';
-import User from '../../src/models/User';
+import UserService from '../../src/services/UserService';
 
 describe('Tokens', () => {
   beforeEach(async () => {
@@ -9,7 +9,7 @@ describe('Tokens', () => {
   });
 
   it('deve retornar um token JWT válido ao enviar credenciais corretas', async () => {
-    const user = await User.create({
+    await UserService.store({
       nome: 'Teste',
       email: 'teste@teste.com',
       password: '123456'
@@ -28,7 +28,7 @@ describe('Tokens', () => {
   });
 
   it('deve retornar HTTP 401 com senha incorreta', async () => {
-    const user = await User.create({
+    await UserService.store({
       nome: 'Teste',
       email: 'teste@teste.com',
       password: '123456'
