@@ -27,8 +27,12 @@ class UserController {
 
   async updateAdmin(req, res) {
     const novosDados = await UserService.update(req.params.id, req.body);
-    const { id, nome, email, perfil, aluno_id } = novosDados;
-    return res.json({ id, nome, email, perfil, aluno_id });
+    const {
+      id, nome, email, perfil, aluno_id,
+    } = novosDados;
+    return res.json({
+      id, nome, email, perfil, aluno_id,
+    });
   }
 
   async delete(req, res) {

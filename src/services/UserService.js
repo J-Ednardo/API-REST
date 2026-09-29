@@ -5,12 +5,12 @@ import AppError from '../errors/AppError.js';
 class UserService {
   async index({ page = 1, limit = 10 } = {}) {
     const offset = (page - 1) * limit;
-    
+
     const { count, rows } = await User.findAndCountAll({
       attributes: ['id', 'nome', 'email', 'perfil', 'aluno_id'],
       limit: Number(limit),
       offset: Number(offset),
-      order: [['id', 'DESC']]
+      order: [['id', 'DESC']],
     });
 
     return {
@@ -19,8 +19,8 @@ class UserService {
         total: count,
         page: Number(page),
         limit: Number(limit),
-        totalPages: Math.ceil(count / limit)
-      }
+        totalPages: Math.ceil(count / limit),
+      },
     };
   }
 
