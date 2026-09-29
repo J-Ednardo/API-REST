@@ -8,8 +8,9 @@ class UserController {
   }
 
   async index(req, res) {
-    const users = await UserService.index();
-    return res.json(users);
+    const { page, limit } = req.query;
+    const result = await UserService.index({ page, limit });
+    return res.json(result);
   }
 
   async show(req, res) {
@@ -22,6 +23,16 @@ class UserController {
     const novosDados = await UserService.update(req.user.id, req.body);
     const { id, nome, email } = novosDados;
     return res.json({ id, nome, email });
+  }
+
+  async updateAdmin(req, res) {
+    const novosDados = await UserService.update(req.params.id, req.body);
+    const {
+      id, nome, email, perfil, aluno_id,
+    } = novosDados;
+    return res.json({
+      id, nome, email, perfil, aluno_id,
+    });
   }
 
   async delete(req, res) {
