@@ -8,8 +8,9 @@ class UserController {
   }
 
   async index(req, res) {
-    const users = await UserService.index();
-    return res.json(users);
+    const { page, limit } = req.query;
+    const result = await UserService.index({ page, limit });
+    return res.json(result);
   }
 
   async show(req, res) {
