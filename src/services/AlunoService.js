@@ -77,11 +77,11 @@ class AlunoService {
               model: require('../models/Turma').default,
               include: [
                 { model: require('../models/Disciplina').default },
-                { model: require('../models/PeriodoLetivo').default }
-              ]
+                { model: require('../models/PeriodoLetivo').default },
+              ],
             },
-            { model: require('../models/Frequencia').default }
-          ]
+            { model: require('../models/Frequencia').default },
+          ],
         },
       ],
     });
