@@ -36,7 +36,7 @@ class AlunoService {
       limit,
       offset,
       attributes: ['id', 'nome', 'sobrenome', 'email', 'idade'],
-      order: [['nome', 'ASC'], ['id', 'ASC']],
+      order: [['nome', 'ASC'], ['id', 'ASC'], [Foto, 'id', 'DESC']],
       distinct: true, // Necessario por causa do hasMany (Matricula) no findAndCountAll
       include: [
         {
@@ -63,6 +63,7 @@ class AlunoService {
 
     const aluno = await Aluno.findByPk(id, {
       attributes: ['id', 'nome', 'sobrenome', 'email', 'idade'],
+      order: [[Foto, 'id', 'DESC']],
       include: [
         {
           model: Foto,
@@ -71,6 +72,16 @@ class AlunoService {
         {
           model: Matricula,
           attributes: ['id', 'nota1', 'nota2', 'nota3', 'nota_recuperacao', 'media_final', 'faltas_legado', 'situacao', 'turma_id'],
+          include: [
+            {
+              model: require('../models/Turma').default,
+              include: [
+                { model: require('../models/Disciplina').default },
+                { model: require('../models/PeriodoLetivo').default },
+              ],
+            },
+            { model: require('../models/Frequencia').default },
+          ],
         },
       ],
     });
@@ -138,7 +149,8 @@ class AlunoService {
         periodosMap[periodoNome] = [];
       }
 
-      const faltasCalc = (m.faltas_legado || 0) + (m.Frequencias ? m.Frequencias.filter((f) => !f.presente).length : 0);
+      const faltasArray = m.Frequencia || m.Frequencias || [];
+      const faltasCalc = (m.faltas_legado || 0) + faltasArray.filter((f) => !f.presente).length;
 
       periodosMap[periodoNome].push({
         disciplina: m.Turma && m.Turma.Disciplina ? m.Turma.Disciplina.nome : 'N/A',
