@@ -26,11 +26,15 @@ class FrequenciaService {
           presente: item.presente,
         }, { transaction: t });
         results.push(freq);
+      }
 
-        // Recalcular matrícula
+      await t.commit();
+
+      // Recalcular matrícula após o commit
+      for (const item of frequenciasArray) {
         await MatriculaService.update(item.matricula_id, {});
       }
-      await t.commit();
+
       return results;
     } catch (err) {
       await t.rollback();

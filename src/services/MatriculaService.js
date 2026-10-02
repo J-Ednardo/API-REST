@@ -52,6 +52,7 @@ class MatriculaService {
           ],
         },
         { model: Frequencia },
+        { model: require('../models/Aluno').default, attributes: ['id', 'nome', 'sobrenome'] },
       ],
     });
   }
@@ -71,6 +72,7 @@ class MatriculaService {
           ],
         },
         { model: Frequencia },
+        { model: require('../models/Aluno').default, attributes: ['id', 'nome', 'sobrenome'] },
       ],
     });
   }

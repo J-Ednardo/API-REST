@@ -43,6 +43,14 @@ export default class Aluno extends Model {
             isInt: {
               msg: 'Idade precisa ser um número inteiro',
             },
+            min: {
+              args: [0],
+              msg: 'Idade não pode ser negativa',
+            },
+            max: {
+              args: [100],
+              msg: 'Idade não pode ser maior que 100',
+            },
           },
         },
       },
