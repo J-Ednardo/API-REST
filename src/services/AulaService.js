@@ -14,7 +14,25 @@ class AulaService {
     if (turma.PeriodoLetivo && turma.PeriodoLetivo.status === 'FECHADO') {
       throw new AppError('Período letivo fechado.', 403, 'PERIODO_FECHADO');
     }
-    return await Aula.create(data);
+
+    const existingAula = await Aula.findOne({
+      where: {
+        turma_id: data.turma_id,
+        data: data.data,
+      },
+    });
+    if (existingAula) {
+      throw new AppError('Já existe uma aula/chamada registrada para esta turma nesta data.', 400, 'CHAMADA_JA_REGISTRADA');
+    }
+
+    try {
+      return await Aula.create(data);
+    } catch (err) {
+      if (err.name === 'SequelizeUniqueConstraintError') {
+        throw new AppError('Já existe uma aula/chamada registrada para esta turma nesta data.', 400, 'CHAMADA_JA_REGISTRADA');
+      }
+      throw err;
+    }
   }
 }
 export default new AulaService();

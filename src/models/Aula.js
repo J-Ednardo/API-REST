@@ -8,6 +8,12 @@ export default class Aula extends Model {
     }, {
       sequelize,
       tableName: 'aulas',
+      indexes: [
+        {
+          unique: true,
+          fields: ['turma_id', 'data'],
+        },
+      ],
     });
     return this;
   }
