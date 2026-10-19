@@ -1,6 +1,7 @@
 import Aula from '../models/Aula';
 import Turma from '../models/Turma';
 import PeriodoLetivo from '../models/PeriodoLetivo';
+import Frequencia from '../models/Frequencia';
 import AppError from '../errors/AppError';
 
 class AulaService {
@@ -11,7 +12,11 @@ class AulaService {
         throw new AppError('Você não leciona nesta turma.', 403, 'PROIBIDO');
       }
     }
-    return await Aula.findAll({ where: { turma_id } });
+    return await Aula.findAll({
+      where: { turma_id },
+      include: [Frequencia],
+      order: [['data', 'DESC']],
+    });
   }
 
   async store(data, user = null) {

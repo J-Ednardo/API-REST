@@ -3,8 +3,12 @@ import UserService from '../services/UserService.js';
 class UserController {
   async store(req, res) {
     const novoUser = await UserService.store(req.body);
-    const { id, nome, email } = novoUser;
-    return res.json({ id, nome, email });
+    const {
+      id, nome, email, perfil, aluno_id,
+    } = novoUser;
+    return res.json({
+      id, nome, email, perfil, aluno_id,
+    });
   }
 
   async index(req, res) {
@@ -21,12 +25,16 @@ class UserController {
 
   async update(req, res) {
     const novosDados = await UserService.update(req.user.id, req.body);
-    const { id, nome, email } = novosDados;
-    return res.json({ id, nome, email });
+    const {
+      id, nome, email, perfil, aluno_id,
+    } = novosDados;
+    return res.json({
+      id, nome, email, perfil, aluno_id,
+    });
   }
 
   async updateAdmin(req, res) {
-    const novosDados = await UserService.update(req.params.id, req.body);
+    const novosDados = await UserService.update(req.params.id, req.body, true);
     const {
       id, nome, email, perfil, aluno_id,
     } = novosDados;

@@ -31,21 +31,34 @@ class UserService {
   }
 
   async store(data) {
-    if (data.password) {
-      data.password_hash = await bcryptjs.hash(data.password, 8);
+    const payload = {
+      nome: data.nome,
+      email: data.email,
+      password: data.password,
+      perfil: 'ALUNO',
+      aluno_id: null,
+    };
+    if (payload.password) {
+      payload.password_hash = await bcryptjs.hash(payload.password, 8);
     }
-    return User.create(data);
+    return User.create(payload);
   }
 
-  async update(id, data) {
+  async update(id, data, isAdmin = false) {
     const user = await User.findByPk(id);
     if (!user) throw new AppError('Usuário não existe', 404, 'NAO_ENCONTRADO');
 
-    if (data.password) {
-      data.password_hash = await bcryptjs.hash(data.password, 8);
+    const payload = { ...data };
+    if (!isAdmin) {
+      delete payload.perfil;
+      delete payload.aluno_id;
     }
 
-    return user.update(data);
+    if (payload.password) {
+      payload.password_hash = await bcryptjs.hash(payload.password, 8);
+    }
+
+    return user.update(payload);
   }
 
   async delete(id) {

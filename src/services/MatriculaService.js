@@ -77,6 +77,22 @@ class MatriculaService {
     });
   }
 
+  _validarNotas(payload) {
+    const camposNota = ['nota1', 'nota2', 'nota3', 'nota_recuperacao'];
+    for (const campo of camposNota) {
+      const val = payload[campo];
+      if (val !== undefined && val !== null && val !== '') {
+        const num = Number(val);
+        if (Number.isNaN(num) || num < 0 || num > 10) {
+          throw new AppError(`A nota (${campo}) deve ser um valor entre 0 e 10.`, 400, 'NOTA_INVALIDA');
+        }
+        payload[campo] = num;
+      } else if (val === '') {
+        payload[campo] = null;
+      }
+    }
+  }
+
   async store(data) {
     if (data.turma_id) {
       const turma = await Turma.findByPk(data.turma_id, {
@@ -86,6 +102,20 @@ class MatriculaService {
         throw new AppError('Não é possível matricular aluno em uma turma de período letivo fechado.', 403, 'PERIODO_FECHADO');
       }
     }
+
+    if (data.aluno_id && data.turma_id) {
+      const jaMatriculado = await Matricula.findOne({
+        where: {
+          aluno_id: data.aluno_id,
+          turma_id: data.turma_id,
+        },
+      });
+      if (jaMatriculado) {
+        throw new AppError('Este aluno já está matriculado nesta turma.', 400, 'ALUNO_JA_MATRICULADO');
+      }
+    }
+
+    this._validarNotas(data);
     return await Matricula.create(data);
   }
 
@@ -114,6 +144,8 @@ class MatriculaService {
         ...(data.nota_recuperacao !== undefined && { nota_recuperacao: data.nota_recuperacao }),
       }
       : { ...data };
+
+    this._validarNotas(updatePayload);
 
     const faltas_registradas = await Frequencia.count({
       where: { matricula_id: id, presente: false },
