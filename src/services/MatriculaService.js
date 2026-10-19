@@ -78,6 +78,14 @@ class MatriculaService {
   }
 
   async store(data) {
+    if (data.turma_id) {
+      const turma = await Turma.findByPk(data.turma_id, {
+        include: [PeriodoLetivo],
+      });
+      if (turma && turma.PeriodoLetivo && turma.PeriodoLetivo.status === 'FECHADO') {
+        throw new AppError('Não é possível matricular aluno em uma turma de período letivo fechado.', 403, 'PERIODO_FECHADO');
+      }
+    }
     return await Matricula.create(data);
   }
 
@@ -110,8 +118,15 @@ class MatriculaService {
   }
 
   async delete(id) {
-    const matricula = await Matricula.findByPk(id);
+    const matricula = await Matricula.findByPk(id, {
+      include: [{ model: Turma, include: [PeriodoLetivo] }],
+    });
     if (!matricula) throw new AppError('Matrícula não encontrada', 404, 'NAO_ENCONTRADO');
+
+    if (matricula.Turma && matricula.Turma.PeriodoLetivo && matricula.Turma.PeriodoLetivo.status === 'FECHADO') {
+      throw new AppError('Não é possível excluir matrícula de um período letivo fechado.', 403, 'PERIODO_FECHADO');
+    }
+
     await matricula.destroy();
   }
 }

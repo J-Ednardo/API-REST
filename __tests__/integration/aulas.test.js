@@ -106,4 +106,64 @@ describe('Aulas e Chamada', () => {
     expect(response.body.length).toBe(1);
     expect(response.body[0].conteudo).toBe('Aula 1');
   });
+
+  it('deve retornar PeriodoLetivo e Disciplina ao buscar detalhes da turma', async () => {
+    const response = await request(app)
+      .get(`/turmas/${turma.id}`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('PeriodoLetivo');
+    expect(response.body.PeriodoLetivo.status).toBe('ABERTO');
+    expect(response.body).toHaveProperty('Disciplina');
+    expect(response.body.Disciplina.nome).toBe('Matemática');
+  });
+
+  it('deve bloquear criacao e alteracao de turma e matricula quando o semestre estiver FECHADO', async () => {
+    const periodoFechado = await PeriodoLetivo.create({
+      nome: '2025.2',
+      data_inicio: '2025-08-01',
+      data_fim: '2025-12-15',
+      status: 'FECHADO',
+    });
+
+    // Tentar criar turma em semestre fechado
+    const resCriarTurma = await request(app)
+      .post('/turmas')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        codigo: 'MAT-FECHADA',
+        disciplina_id: turma.disciplina_id,
+        periodo_id: periodoFechado.id,
+        professor_id: turma.professor_id,
+      });
+
+    expect(resCriarTurma.status).toBe(403);
+    expect(resCriarTurma.body.erro.codigo).toBe('PERIODO_FECHADO');
+
+    // Fechar o período da turma existente
+    await PeriodoLetivo.update({ status: 'FECHADO' }, { where: { id: turma.periodo_id } });
+
+    // Tentar atualizar a turma de semestre fechado
+    const resAtualizarTurma = await request(app)
+      .put(`/turmas/${turma.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ codigo: 'MAT-ALTERADA' });
+
+    expect(resAtualizarTurma.status).toBe(403);
+    expect(resAtualizarTurma.body.erro.codigo).toBe('PERIODO_FECHADO');
+
+    // Tentar matricular aluno em turma de semestre fechado
+    const resMatricular = await request(app)
+      .post('/matriculas')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        turma_id: turma.id,
+        aluno_id: 1,
+      });
+
+    expect(resMatricular.status).toBe(403);
+    expect(resMatricular.body.erro.codigo).toBe('PERIODO_FECHADO');
+  });
 });
+
