@@ -5,12 +5,12 @@ import checkRole from '../middlewares/checkRole';
 
 const router = new Router();
 
-router.use(loginRequired, checkRole(['ADMIN', 'PROFESSOR']));
+router.use(loginRequired);
 
-router.get('/', TurmaController.index);
-router.get('/:id', TurmaController.show);
-router.post('/', TurmaController.store);
-router.put('/:id', TurmaController.update);
-router.delete('/:id', TurmaController.delete);
+router.get('/', checkRole(['ADMIN', 'PROFESSOR']), TurmaController.index);
+router.get('/:id', checkRole(['ADMIN', 'PROFESSOR']), TurmaController.show);
+router.post('/', checkRole(['ADMIN']), TurmaController.store);
+router.put('/:id', checkRole(['ADMIN']), TurmaController.update);
+router.delete('/:id', checkRole(['ADMIN']), TurmaController.delete);
 
 export default router;

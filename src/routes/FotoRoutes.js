@@ -6,6 +6,6 @@ import checkRole from '../middlewares/checkRole';
 
 const router = new Router();
 
-router.post('/', loginRequired, checkRole(['ADMIN', 'PROFESSOR']), fotoController.store);
+router.post('/', loginRequired, checkRole(['ADMIN']), fotoController.store);
 
 export default router;

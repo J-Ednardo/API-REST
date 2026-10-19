@@ -5,12 +5,12 @@ import checkRole from '../middlewares/checkRole';
 
 const router = new Router();
 
-router.use(loginRequired, checkRole(['ADMIN']));
+router.use(loginRequired);
 
-router.get('/', PeriodoLetivoController.index);
-router.get('/:id', PeriodoLetivoController.show);
-router.post('/', PeriodoLetivoController.store);
-router.put('/:id', PeriodoLetivoController.update);
-router.delete('/:id', PeriodoLetivoController.delete);
+router.get('/', checkRole(['ADMIN', 'PROFESSOR']), PeriodoLetivoController.index);
+router.get('/:id', checkRole(['ADMIN', 'PROFESSOR']), PeriodoLetivoController.show);
+router.post('/', checkRole(['ADMIN']), PeriodoLetivoController.store);
+router.put('/:id', checkRole(['ADMIN']), PeriodoLetivoController.update);
+router.delete('/:id', checkRole(['ADMIN']), PeriodoLetivoController.delete);
 
 export default router;

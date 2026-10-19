@@ -120,6 +120,19 @@ describe('Aulas e Chamada', () => {
   });
 
   it('deve bloquear criacao e alteracao de turma e matricula quando o semestre estiver FECHADO', async () => {
+    const adminUser = await User.create({
+      nome: 'Admin Teste',
+      email: 'admin@teste.com',
+      password: 'secretpassword',
+      perfil: 'ADMIN',
+    });
+
+    const adminToken = jwt.sign(
+      { id: adminUser.id, email: adminUser.email, perfil: adminUser.perfil },
+      process.env.TOKEN_SECRET || 'segredodeteste123',
+      { expiresIn: process.env.TOKEN_EXPIRATION || '7d' }
+    );
+
     const periodoFechado = await PeriodoLetivo.create({
       nome: '2025.2',
       data_inicio: '2025-08-01',
@@ -130,7 +143,7 @@ describe('Aulas e Chamada', () => {
     // Tentar criar turma em semestre fechado
     const resCriarTurma = await request(app)
       .post('/turmas')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({
         codigo: 'MAT-FECHADA',
         disciplina_id: turma.disciplina_id,
@@ -147,7 +160,7 @@ describe('Aulas e Chamada', () => {
     // Tentar atualizar a turma de semestre fechado
     const resAtualizarTurma = await request(app)
       .put(`/turmas/${turma.id}`)
-      .set('Authorization', `Bearer ${token}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({ codigo: 'MAT-ALTERADA' });
 
     expect(resAtualizarTurma.status).toBe(403);
@@ -156,7 +169,7 @@ describe('Aulas e Chamada', () => {
     // Tentar matricular aluno em turma de semestre fechado
     const resMatricular = await request(app)
       .post('/matriculas')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({
         turma_id: turma.id,
         aluno_id: 1,
@@ -164,6 +177,54 @@ describe('Aulas e Chamada', () => {
 
     expect(resMatricular.status).toBe(403);
     expect(resMatricular.body.erro.codigo).toBe('PERIODO_FECHADO');
+  });
+
+  it('deve restringir PROFESSOR apenas as suas proprias turmas e impedir criacao de turma', async () => {
+    const outroProf = await User.create({
+      nome: 'Outro Professor',
+      email: 'outro@teste.com',
+      password: 'secretpassword',
+      perfil: 'PROFESSOR',
+    });
+
+    const turmaOutroProf = await Turma.create({
+      codigo: 'MAT-B',
+      disciplina_id: turma.disciplina_id,
+      periodo_id: turma.periodo_id,
+      professor_id: outroProf.id,
+    });
+
+    // Professor não pode criar turma (exclusivo ADMIN)
+    const resCriar = await request(app)
+      .post('/turmas')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        codigo: 'MAT-C',
+        disciplina_id: turma.disciplina_id,
+        periodo_id: turma.periodo_id,
+        professor_id: turma.professor_id,
+      });
+    expect(resCriar.status).toBe(403);
+
+    // GET /turmas para o professor logado só retorna a turma dele
+    const resLista = await request(app)
+      .get('/turmas')
+      .set('Authorization', `Bearer ${token}`);
+    expect(resLista.status).toBe(200);
+    expect(resLista.body.length).toBe(1);
+    expect(resLista.body[0].id).toBe(turma.id);
+
+    // Professor não pode acessar nem criar aula na turma de outro professor
+    const resShowOutra = await request(app)
+      .get(`/turmas/${turmaOutroProf.id}`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(resShowOutra.status).toBe(403);
+
+    const resAulaOutra = await request(app)
+      .post(`/turmas/${turmaOutroProf.id}/aulas`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ data: '2026-03-15', conteudo: 'Aula indevida' });
+    expect(resAulaOutra.status).toBe(403);
   });
 });
 

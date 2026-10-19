@@ -5,14 +5,14 @@ class FrequenciaController {
     try {
       const { aula_id } = req.params;
       // Espera req.body ser um array de { matricula_id, presente }
-      const data = await FrequenciaService.storeBatch(aula_id, req.body);
+      const data = await FrequenciaService.storeBatch(aula_id, req.body, req.user);
       res.status(201).json(data);
     } catch (e) { next(e); }
   }
 
   async update(req, res, next) {
     try {
-      const data = await FrequenciaService.update(req.params.id, req.body);
+      const data = await FrequenciaService.update(req.params.id, req.body, req.user);
       res.json(data);
     } catch (e) { next(e); }
   }

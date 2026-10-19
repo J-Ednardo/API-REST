@@ -110,6 +110,37 @@ describe('Alunos', () => {
     expect(response.status).toBe(403);
   });
 
+  it('deve permitir consulta de alunos para PROFESSOR mas bloquear criacao e exclusao', async () => {
+    const userProf = await User.create({
+      nome: 'Professor Consulta',
+      email: 'profconsulta@teste.com',
+      password: '123456',
+      perfil: 'PROFESSOR'
+    });
+
+    const tokenProf = jwt.sign(
+      { id: userProf.id, email: userProf.email, perfil: userProf.perfil },
+      process.env.TOKEN_SECRET || 'segredodeteste123',
+      { expiresIn: process.env.TOKEN_EXPIRATION || '7d' }
+    );
+
+    const resGet = await request(app)
+      .get('/alunos')
+      .set('Authorization', `Bearer ${tokenProf}`);
+    expect(resGet.status).toBe(200);
+
+    const resPost = await request(app)
+      .post('/alunos')
+      .set('Authorization', `Bearer ${tokenProf}`)
+      .send({
+        nome: 'Novo',
+        sobrenome: 'Aluno',
+        email: 'novo@aluno.com',
+        idade: 16
+      });
+    expect(resPost.status).toBe(403);
+  });
+
   it('deve executar o soft delete corretamente (DELETE /alunos/:id)', async () => {
     const postResponse = await request(app)
       .post('/alunos')

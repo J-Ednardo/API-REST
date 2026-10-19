@@ -3,14 +3,14 @@ import TurmaService from '../services/TurmaService';
 class TurmaController {
   async index(req, res, next) {
     try {
-      const data = await TurmaService.index();
+      const data = await TurmaService.index(req.user);
       res.json(data);
     } catch (e) { next(e); }
   }
 
   async show(req, res, next) {
     try {
-      const data = await TurmaService.show(req.params.id);
+      const data = await TurmaService.show(req.params.id, req.user);
       res.json(data);
     } catch (e) { next(e); }
   }
