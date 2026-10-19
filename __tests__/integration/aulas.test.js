@@ -226,5 +226,61 @@ describe('Aulas e Chamada', () => {
       .send({ data: '2026-03-15', conteudo: 'Aula indevida' });
     expect(resAulaOutra.status).toBe(403);
   });
+
+  it('deve impedir matrícula duplicada do mesmo aluno na mesma turma e validar notas entre 0 e 10', async () => {
+    const adminUser = await User.create({
+      nome: 'Admin Matricula',
+      email: 'admin.mat@teste.com',
+      password: 'secretpassword',
+      perfil: 'ADMIN',
+    });
+
+    const adminToken = jwt.sign(
+      { id: adminUser.id, email: adminUser.email, perfil: adminUser.perfil },
+      process.env.TOKEN_SECRET || 'segredodeteste123',
+      { expiresIn: process.env.TOKEN_EXPIRATION || '7d' }
+    );
+
+    const resAluno = await request(app)
+      .post('/alunos')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        nome: 'Carlos',
+        sobrenome: 'Silva',
+        email: 'carlos.silva@teste.com',
+        idade: 18,
+      });
+    expect(resAluno.status).toBe(200);
+
+    const resMat1 = await request(app)
+      .post('/matriculas')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        aluno_id: resAluno.body.id,
+        turma_id: turma.id,
+      });
+    expect(resMat1.status).toBe(201);
+
+    // Tentativa de matricular o mesmo aluno novamente na mesma turma
+    const resMatDuplicada = await request(app)
+      .post('/matriculas')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        aluno_id: resAluno.body.id,
+        turma_id: turma.id,
+      });
+    expect(resMatDuplicada.status).toBe(400);
+    expect(resMatDuplicada.body.erro.codigo).toBe('ALUNO_JA_MATRICULADO');
+
+    // Tentativa de lançar nota maior que 10
+    const resNotaInvalida = await request(app)
+      .put(`/matriculas/${resMat1.body.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        nota1: 12,
+      });
+    expect(resNotaInvalida.status).toBe(400);
+    expect(resNotaInvalida.body.erro.codigo).toBe('NOTA_INVALIDA');
+  });
 });
 

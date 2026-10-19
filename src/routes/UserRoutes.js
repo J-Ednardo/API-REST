@@ -3,7 +3,7 @@ import userController from '../controllers/UserController';
 import loginRequired from '../middlewares/loginRequired';
 
 import validateRequest from '../middlewares/validateRequest';
-import { userStoreSchema, userUpdateSchema } from '../schemas/userSchema';
+import { userStoreSchema, userUpdateSchema, userAdminUpdateSchema } from '../schemas/userSchema';
 import { registerLimiter } from '../middlewares/rateLimiter';
 
 import checkRole from '../middlewares/checkRole';
@@ -13,7 +13,7 @@ const router = new Router();
 router.get('/', loginRequired, checkRole('ADMIN'), userController.index);
 router.post('/', registerLimiter, validateRequest(userStoreSchema), userController.store);
 router.put('/', loginRequired, validateRequest(userUpdateSchema), userController.update);
-router.put('/:id', loginRequired, checkRole('ADMIN'), validateRequest(userUpdateSchema), userController.updateAdmin);
+router.put('/:id', loginRequired, checkRole('ADMIN'), validateRequest(userAdminUpdateSchema), userController.updateAdmin);
 router.delete('/', loginRequired, userController.delete);
 
 export default router;
