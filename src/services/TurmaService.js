@@ -1,19 +1,40 @@
 import Turma from '../models/Turma';
 import PeriodoLetivo from '../models/PeriodoLetivo';
 import Disciplina from '../models/Disciplina';
+import User from '../models/User';
 import AppError from '../errors/AppError';
 
 class TurmaService {
-  async index() {
+  async index(user = null) {
+    const where = {};
+    if (user && user.perfil === 'PROFESSOR') {
+      where.professor_id = user.id;
+    }
+
     return await Turma.findAll({
-      include: [PeriodoLetivo, Disciplina],
+      where,
+      include: [
+        PeriodoLetivo,
+        Disciplina,
+        { model: User, as: 'Professor', attributes: ['id', 'nome', 'email'] },
+      ],
     });
   }
 
-  async show(id) {
-    return await Turma.findByPk(id, {
-      include: [PeriodoLetivo, Disciplina],
+  async show(id, user = null) {
+    const turma = await Turma.findByPk(id, {
+      include: [
+        PeriodoLetivo,
+        Disciplina,
+        { model: User, as: 'Professor', attributes: ['id', 'nome', 'email'] },
+      ],
     });
+
+    if (turma && user && user.perfil === 'PROFESSOR' && Number(turma.professor_id) !== Number(user.id)) {
+      throw new AppError('Você não tem permissão para acessar esta turma.', 403, 'PROIBIDO');
+    }
+
+    return turma;
   }
 
   async store(data) {

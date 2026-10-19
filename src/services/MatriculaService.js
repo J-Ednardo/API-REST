@@ -89,32 +89,47 @@ class MatriculaService {
     return await Matricula.create(data);
   }
 
-  async update(id, data) {
+  async update(id, data, user = null) {
     const matricula = await Matricula.findByPk(id, {
       include: [{ model: Turma, include: [PeriodoLetivo] }],
     });
 
     if (!matricula) throw new AppError('Matrícula não encontrada', 404, 'NAO_ENCONTRADO');
 
+    if (user && user.perfil === 'PROFESSOR') {
+      if (!matricula.Turma || Number(matricula.Turma.professor_id) !== Number(user.id)) {
+        throw new AppError('Você não tem permissão para alterar notas desta turma.', 403, 'PROIBIDO');
+      }
+    }
+
     if (matricula.Turma && matricula.Turma.PeriodoLetivo && matricula.Turma.PeriodoLetivo.status === 'FECHADO') {
       throw new AppError('Não é possível editar matrícula de um período letivo fechado.', 403, 'PERIODO_FECHADO');
     }
+
+    const updatePayload = user && user.perfil === 'PROFESSOR'
+      ? {
+        ...(data.nota1 !== undefined && { nota1: data.nota1 }),
+        ...(data.nota2 !== undefined && { nota2: data.nota2 }),
+        ...(data.nota3 !== undefined && { nota3: data.nota3 }),
+        ...(data.nota_recuperacao !== undefined && { nota_recuperacao: data.nota_recuperacao }),
+      }
+      : { ...data };
 
     const faltas_registradas = await Frequencia.count({
       where: { matricula_id: id, presente: false },
     });
 
-    const n1 = data.nota1 !== undefined ? data.nota1 : matricula.nota1;
-    const n2 = data.nota2 !== undefined ? data.nota2 : matricula.nota2;
-    const n3 = data.nota3 !== undefined ? data.nota3 : matricula.nota3;
-    const nRec = data.nota_recuperacao !== undefined ? data.nota_recuperacao : matricula.nota_recuperacao;
+    const n1 = updatePayload.nota1 !== undefined ? updatePayload.nota1 : matricula.nota1;
+    const n2 = updatePayload.nota2 !== undefined ? updatePayload.nota2 : matricula.nota2;
+    const n3 = updatePayload.nota3 !== undefined ? updatePayload.nota3 : matricula.nota3;
+    const nRec = updatePayload.nota_recuperacao !== undefined ? updatePayload.nota_recuperacao : matricula.nota_recuperacao;
 
     const { situacao, media_final } = this._calcularSituacao(n1, n2, n3, nRec, matricula.faltas_legado, faltas_registradas);
 
-    data.situacao = situacao;
-    data.media_final = media_final;
+    updatePayload.situacao = situacao;
+    updatePayload.media_final = media_final;
 
-    return await matricula.update(data);
+    return await matricula.update(updatePayload);
   }
 
   async delete(id) {

@@ -7,11 +7,14 @@ import AppError from '../errors/AppError';
 import connection from '../database';
 
 class FrequenciaService {
-  async storeBatch(aula_id, frequenciasArray) {
+  async storeBatch(aula_id, frequenciasArray, user = null) {
     const aula = await Aula.findByPk(aula_id, {
       include: [{ model: Turma, include: [PeriodoLetivo] }],
     });
     if (!aula) throw new AppError('Aula não encontrada', 404, 'NAO_ENCONTRADO');
+    if (user && user.perfil === 'PROFESSOR' && Number(aula.Turma.professor_id) !== Number(user.id)) {
+      throw new AppError('Você não leciona nesta turma.', 403, 'PROIBIDO');
+    }
     if (aula.Turma.PeriodoLetivo && aula.Turma.PeriodoLetivo.status === 'FECHADO') {
       throw new AppError('Período letivo fechado.', 403, 'PERIODO_FECHADO');
     }
@@ -42,11 +45,14 @@ class FrequenciaService {
     }
   }
 
-  async update(id, data) {
+  async update(id, data, user = null) {
     const freq = await Frequencia.findByPk(id, {
       include: [{ model: Aula, include: [{ model: Turma, include: [PeriodoLetivo] }] }],
     });
     if (!freq) throw new AppError('Frequencia não encontrada', 404, 'NAO_ENCONTRADO');
+    if (user && user.perfil === 'PROFESSOR' && Number(freq.Aula.Turma.professor_id) !== Number(user.id)) {
+      throw new AppError('Você não leciona nesta turma.', 403, 'PROIBIDO');
+    }
     if (freq.Aula.Turma.PeriodoLetivo && freq.Aula.Turma.PeriodoLetivo.status === 'FECHADO') {
       throw new AppError('Período letivo fechado.', 403, 'PERIODO_FECHADO');
     }

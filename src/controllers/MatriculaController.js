@@ -28,7 +28,7 @@ class MatriculaController {
 
   async update(req, res, next) {
     try {
-      const data = await MatriculaService.update(req.params.id, req.body);
+      const data = await MatriculaService.update(req.params.id, req.body, req.user);
       res.json(data);
     } catch (e) { next(e); }
   }

@@ -10,8 +10,8 @@ router.use(loginRequired);
 router.get('/', checkRole(['ADMIN', 'PROFESSOR', 'ALUNO']), MatriculaController.index);
 router.get('/:id', checkRole(['ADMIN', 'PROFESSOR', 'ALUNO']), MatriculaController.show);
 
-router.post('/', checkRole(['ADMIN', 'PROFESSOR']), MatriculaController.store);
+router.post('/', checkRole(['ADMIN']), MatriculaController.store);
 router.put('/:id', checkRole(['ADMIN', 'PROFESSOR']), MatriculaController.update);
-router.delete('/:id', checkRole(['ADMIN', 'PROFESSOR']), MatriculaController.delete);
+router.delete('/:id', checkRole(['ADMIN']), MatriculaController.delete);
 
 export default router;
