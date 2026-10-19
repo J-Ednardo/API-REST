@@ -12,7 +12,7 @@
 
 API RESTful em **Node.js + Express + Sequelize** para gestão escolar completa: controle de períodos letivos, disciplinas, turmas, matrículas, diário de notas, chamada diária, histórico escolar e controle de acesso baseado em perfis (**RBAC**).
 
-[Explorar Documentação (`CONTRATO-API.md`)](../docs/CONTRATO-API.md) · [Front-end React](https://github.com/J-Ednardo/front-projeto-escola) · [Reportar Bug](https://github.com/J-Ednardo/API-REST/issues)
+[Front-end React](https://github.com/J-Ednardo/front-projeto-escola) · [Reportar Bug](https://github.com/J-Ednardo/API-REST/issues)
 
 </div>
 
