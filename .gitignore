@@ -5,3 +5,4 @@ db.sqlite
 uploads/images/*
 coverage/
 build/
+dist/

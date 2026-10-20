@@ -27,9 +27,15 @@ if (process.env.NODE_ENV === 'test') {
     ...baseConfig,
     dialect: 'mysql',
     dialectOptions: {
-      timezone: 'America/Sao_Paulo',
+      timezone: '-03:00',
       allowPublicKeyRetrieval: true,
+      ...(process.env.DATABASE_SSL === 'true' && {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false,
+        },
+      }),
     },
-    timezone: 'America/Sao_Paulo',
+    timezone: '-03:00',
   };
 }
