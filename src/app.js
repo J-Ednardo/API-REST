@@ -24,8 +24,14 @@ import { swaggerUi, swaggerDocument } from './config/swagger.js';
 
 dotenv.config();
 
+const envOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim()).filter(Boolean)
+  : [];
+
 const whiteList = [
   'http://localhost:3000',
+  'http://localhost:3001',
+  ...envOrigins,
 ];
 
 const corsOptions = {
@@ -47,12 +53,15 @@ class App {
   }
 
   middlewares() {
+    this.app.set('trust proxy', 1);
     this.app.use(cors(corsOptions));
     this.app.use(helmet({
       crossOriginResourcePolicy: { policy: 'cross-origin' },
       crossOriginEmbedderPolicy: false,
     }));
-    this.app.use(delay(500));
+    if (process.env.NODE_ENV === 'development') {
+      this.app.use(delay(500));
+    }
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(express.json());
     this.app.use(express.static(resolve(__dirname, '..', 'uploads')));
